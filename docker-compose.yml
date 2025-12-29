@@ -20,3 +20,27 @@ services:
       interval: 5s
       timeout: 5s
       retries: 6
+
+  backendL
+    build: ./backend
+    container_name: advisor-backend
+    
+    ports:
+      - "8000:8000"
+
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/advisor_finder
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    volumes:
+      - ./backend:/app
+
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  pgdata:
