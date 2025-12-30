@@ -4,7 +4,7 @@ services:
   db:
     image: pgvector/pgvector:pg16
     container_name: advisor-db
-      #env variables
+    #env variables
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 6
 
-backend:
+  backend:
     build: ./backend
     container_name: advisor-backend
     
