@@ -17,7 +17,7 @@ class Faculty(Base):
     
     __tablename__ = "faculty"
 
-    id = Column(Integer, primaryPkey=True, index =True)
+    id = Column(Integer, primary_key=True, index =True)
 
     semantic_scholar_id = Column(String(50), unique=True, index=True)
 
@@ -47,11 +47,11 @@ class Paper(Base):
 
     faculty_id = Column(Integer, ForeignKey("faculty.id"), index=True)
 
-    title = Column(Text, nullable-False)
+    title = Column(Text, nullable=False)
     abstract = Column(Text)
     year = Column(Integer)
     venue = Column(String(500))
     citation_count = Column(Integer)
 
-    faculty = relationship("Faculty", back_populates("papers"))
+    faculty = relationship("Faculty", back_populates="papers")
 
