@@ -13,15 +13,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgressql/data
+      - pgdata:/var/lib/postgresql/data
 
     healthcheck:
-      test:["CMD-SHELL", "pg_ready -U postgres"]
+      test: ["CMD-SHELL", "pg_ready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 6
 
-  backendL
+backend:
     build: ./backend
     container_name: advisor-backend
     
