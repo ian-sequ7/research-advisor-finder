@@ -66,7 +66,7 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
             <span className="font-medium">{faculty.paper_count ?? 'N/A'}</span>
           </div>
           {faculty.semantic_scholar_id && (
-            
+            <a
               href={`https://semanticscholar.org/author/${faculty.semantic_scholar_id}`}
               target="_blank"
               rel="noopener noreferrer"
