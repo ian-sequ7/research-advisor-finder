@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from app.database import get_db
+from app.services.explanations import generate_explanation
+from app.schemas import ExplanationRequest, ExplanationResponse
 from app.schemas import SearchRequest, SearchResult
 from app.services.embeddings import get_embedding
 from app.models import Faculty, Paper
@@ -59,3 +61,25 @@ def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
             } for p in papers]
         ))
     return search_results
+
+@router.post("/explain", response_model=ExplanationResponse)
+def explain_match(request: ExplanationRequest, db: Session = Depends(get_db)):
+    """Generate explanation for why a faculty member matches."""
+    faculty = db.query(Faculty).filter(Faculty.id == request.faculty_id).first()
+    if not faculty:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Faculty not found")
+    
+    papers = db.query(Paper).filter(
+        Paper.faculty_id == faculty.id
+    ).order_by(Paper.citation_count.desc()).limit(5).all()
+    
+    paper_titles = [p.title for p in papers]
+    
+    explanation = generate_explanation(
+        request.interests,
+        faculty.name,
+        paper_titles
+    )
+    
+    return ExplanationResponse(explanation=explanation)
