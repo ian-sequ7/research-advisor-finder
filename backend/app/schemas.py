@@ -19,9 +19,9 @@ class FacultyResponse(BaseModel):
     affiliation: Optional[str]
     h_index: Optional[int]
     paper_count: Optional[int]
-    semantic_scholar_id: optional[int]
+    semantic_scholar_id: Optional[int]
 
-    class Config
+    class Config:
         from_attributes = True
 
 class SearchResult(BaseModel):
