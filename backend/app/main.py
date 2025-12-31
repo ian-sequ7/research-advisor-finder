@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
+from app.routers import search
 from app import models
 
 Base.metadata.create_all(bind=engine)
@@ -22,6 +23,8 @@ app.add_middleware(
     allow_methods = ["*"],
     allow_headers = ["*"],
 )
+
+app.include_router(search.router, prefix="/api/search", tags=["search"])
 
 @app.get("/health")
 def health_check():
