@@ -17,7 +17,7 @@ def get_embedding(text: str) -> list[float]:
     return response.data[0].embedding
 
 def build_faculty_text(faculty: Faculty, papers: list[Paper]) -> str:
-    """Build text representation of faculty for embedding."""
+    
     parts = [f"Professor {faculty.name}"]
     
     if faculty.affiliation:
@@ -33,3 +33,42 @@ def build_faculty_text(faculty: Faculty, papers: list[Paper]) -> str:
                 parts.append(f"  {abstract}")
     
     return "\n".join(parts)
+
+def embed_all_faculty():
+    """Generate embeddings for all faculty without embeddings."""
+    db = SessionLocal()
+    
+    try:
+        # Get faculty without embeddings
+        faculty_list = db.query(Faculty).filter(
+            Faculty.embedding.is_(None)
+        ).all()
+        
+        print(f"Found {len(faculty_list)} faculty to embed")
+        
+        for faculty in faculty_list:
+            print(f"Embedding: {faculty.name}")
+            
+            # Get their papers
+            papers = db.query(Paper).filter(
+                Paper.faculty_id == faculty.id
+            ).order_by(Paper.citation_count.desc()).limit(10).all()
+            
+            # Build text and get embedding
+            text = build_faculty_text(faculty, papers)
+            embedding = get_embedding(text)
+            
+            # Save embedding
+            faculty.embedding = embedding
+            db.commit()
+            
+            print(f"  Done ({len(embedding)} dimensions)")
+        
+        print("\nAll embeddings generated!")
+        
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    embed_all_faculty()
