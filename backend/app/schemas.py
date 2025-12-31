@@ -2,16 +2,16 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-    # how a paper is seen from front
-class PaperRespose(BaseModel):
+class PaperResponse(BaseModel):
     id: int
     title: str
     year: Optional[int]
     venue: Optional[str]
-    citation_count: Optional[int]  
+    citation_count: Optional[int]
 
     class Config:
-        from_attributes =True
+        from_attributes = True
+
 
 class FacultyResponse(BaseModel):
     id: int
@@ -19,24 +19,28 @@ class FacultyResponse(BaseModel):
     affiliation: Optional[str]
     h_index: Optional[int]
     paper_count: Optional[int]
-    semantic_scholar_id: Optional[int]
+    semantic_scholar_id: Optional[str]
 
     class Config:
         from_attributes = True
 
+
 class SearchResult(BaseModel):
     faculty: FacultyResponse
-    similarity: float # similarity basically means a higher # means a better match
+    similarity: float
     papers: list[PaperResponse] = []
-    
-class SearchRequest(Basemodel):
+
+
+class SearchRequest(BaseModel):
     query: str
     limit: int = 10
     min_h_index: int = 0
 
+
 class ExplanationRequest(BaseModel):
     interests: str
-    faculty_id: str
+    faculty_id: int
+
 
 class ExplanationResponse(BaseModel):
     explanation: str
