@@ -9,9 +9,9 @@ import { SearchResult, getExplanation } from '@/lib/api';
 import { ExternalLink, Loader2, Sparkles, FileText } from 'lucide-react';
 
 interface ResultCardProps {
-	result: SearchResult;
-	rank: number;
-	interests: string;
+  result: SearchResult;
+  rank: number;
+  interests: string;
 }
 
 export function ResultCard({ result, rank, interests }: ResultCardProps) {
@@ -56,7 +56,6 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Stats */}
         <div className="flex gap-4 text-sm">
           <div>
             <span className="text-muted-foreground">H-Index: </span>
@@ -80,7 +79,6 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
 
         <Separator />
 
-		{/* Papers */}
         {papers.length > 0 && (
           <div>
             <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
@@ -96,7 +94,6 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
           </div>
         )}
 
-		{/* Explanation */}
         {explanation ? (
           <div className="bg-primary/5 rounded-lg p-4">
             <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
@@ -122,5 +119,3 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
     </Card>
   );
 }
-
-
