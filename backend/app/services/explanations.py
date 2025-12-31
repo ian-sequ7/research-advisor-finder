@@ -3,7 +3,9 @@ from anthropic import Anthropic
 
 client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-def generate_explanation(interests: str, faculty_name: str, papers: list[str]) -> str:paper_list = "\n".join(f"- {p}" for p in papers[:5])
+def generate_explanation(interests: str, faculty_name: str, papers: list[str]) -> str:
+    """Generate match explanation with Claude."""
+    paper_list = "\n".join(f"- {p}" for p in papers[:5])
     
     prompt = f"""A prospective PhD student is interested in: {interests}
 
@@ -17,4 +19,5 @@ In 2-3 sentences, explain why this professor might be a good research advisor ma
         max_tokens=250,
         messages=[{"role": "user", "content": prompt}]
     )
+    
     return response.content[0].text
