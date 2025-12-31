@@ -54,7 +54,7 @@ def get_author_details(author_id: str) -> dict | None:
 
 def save_faculty(db: Session, author: dict) -> Faculty | None:
     existing = db.query(Faculty).filter(
-        Faculty.semantic_scholar_id == author["authorID"]
+        Faculty.semantic_scholar_id == author["authorId"]
     ).first()
 
     if existing:
