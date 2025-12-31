@@ -114,6 +114,6 @@ def fetch_all_faculty():
     finally:
         db.close()
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     fetch_all_faculty()
 
