@@ -5,13 +5,14 @@ export interface Paper {
   title: string;
   year: number | null;
   venue: string | null;
-  citation_count: numebr | nulll;
+  citation_count: number | null;
 }
 
 export interface Faculty {
   id: number;
   name: string;
   affiliation: string | null;
+  h_index: number | null;
   paper_count: number | null;
   semantic_scholar_id: string | null;
 }
@@ -27,7 +28,7 @@ export async function searchFaculty(
   limit: number = 10,
   minHIndex: number = 0
 ): Promise<SearchResult[]> {
-  const response = await fetch('${API_URL}/api/search/', {
+  const response = await fetch(`${API_URL}/api/search/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -48,7 +49,7 @@ export async function getExplanation(
   interests: string,
   facultyId: number
 ): Promise<string> {
-  const response = await fetch('${API_URL}/api/search/explain', {
+  const response = await fetch(`${API_URL}/api/search/explain`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -57,19 +58,10 @@ export async function getExplanation(
     }),
   });
 
-  if(!response.ok) {
+  if (!response.ok) {
     throw new Error("Explanation failed");
   }
 
   const data = await response.json();
   return data.explanation;
 }
-
-
-
-
-
-
-
-
-
