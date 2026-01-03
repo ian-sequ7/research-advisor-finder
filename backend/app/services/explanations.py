@@ -1,10 +1,9 @@
 import os
 from anthropic import Anthropic
 
-client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
 def generate_explanation(interests: str, faculty_name: str, papers: list[str]) -> str:
     """Generate match explanation with Claude."""
+    client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
     paper_list = "\n".join(f"- {p}" for p in papers[:5])
     
     prompt = f"""A prospective PhD student is interested in: {interests}
