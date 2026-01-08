@@ -102,7 +102,7 @@ def get_author_details(author_id: str) -> dict | None:
         print(f"  Error getting details for {author_id}: {e}")
     return None
 
-def save_faculty(db: Session, author: dict) -> Faculty | None:
+def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
     existing = db.query(Faculty).filter(
         Faculty.semantic_scholar_id == author["authorID"]
     ).first()
