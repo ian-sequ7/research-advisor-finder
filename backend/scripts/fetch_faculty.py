@@ -111,6 +111,8 @@ def save_faculty(db: Session, author: dict) -> Faculty | None:
         print(f" {author['name']} already exists, skipping")
         return existing
 
+    affiliation = school
+
     faculty = Faculty(
         semantic_scholar_id=author["authorId"],
         name=author["name"],
