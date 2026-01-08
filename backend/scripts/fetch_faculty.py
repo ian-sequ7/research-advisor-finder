@@ -157,15 +157,17 @@ def fetch_all_faculty():
 
             for name in faculty_list:
                 processed += 1
-                
+                print(f"[{processed}/{total_count}] {name}")
 
             search_result = search_author(name)
             if not search_result:
                 print(f" Not Found: {name}")
+                failed += 1
                 continue
 
             author = get_author_details(search_result["authorId"])
             if not author:
+                failed +=1
                 continue
 
             save_faculty(db, author)
