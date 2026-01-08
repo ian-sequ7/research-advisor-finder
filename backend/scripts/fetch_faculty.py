@@ -145,9 +145,14 @@ def save_faculty(db: Session, author: dict) -> Faculty | None:
 
 def fetch_all_faculty():
     db = SessionLocal()
+    
+    total_count = sum(len(faculty) for faculty in FACULTY_BY_SCHOOL.values())
+    processed = 0
+    saved = 0
+    failed = 0
 
     try:
-        for name in SEED_FACULTY:
+        for school, faculty_list in FACULTY_BY_SCHOOL.items():
             print(f"Processing: {name}")
 
             search_result = search_author(name)
