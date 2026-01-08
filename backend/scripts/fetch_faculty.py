@@ -153,7 +153,11 @@ def fetch_all_faculty():
 
     try:
         for school, faculty_list in FACULTY_BY_SCHOOL.items():
-            print(f"Processing: {name}")
+            print(f"Processing: {school} ({len(faculty_list)} faculty)")
+
+            for name in faculty_list:
+                processed += 1
+                
 
             search_result = search_author(name)
             if not search_result:
