@@ -167,13 +167,17 @@ def fetch_all_faculty():
 
             author = get_author_details(search_result["authorId"])
             if not author:
-                failed +=1
+                failed += 1
                 continue
 
-            save_faculty(db, author)
-            time.sleep(1)
+            result = save_faculty(db, author, school)
+            if result:
+                saved += 1
 
-        print("\nDone! Faculty data fetched")
+            save_faculty(db, author)
+            time.sleep(1.5)
+
+        print("\nFinished full pipeline. Processed: {processed}, Saved: {saved}, Failed: {failed}")
     finally:
         db.close()
 
