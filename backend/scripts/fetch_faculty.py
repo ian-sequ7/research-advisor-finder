@@ -1,6 +1,7 @@
-import sys
-sys.path.insert(0, '/app')
-
+"""
+Fetch faculty data from Semantic Scholar API using curated list.
+Run this to populate the database with faculty from top 10 CS programs.
+"""
 import requests
 import time
 from sqlalchemy.orm import Session
@@ -72,51 +73,48 @@ FACULTY_BY_SCHOOL = {
     ]
 }
 
+
 def search_author(name: str) -> dict | None:
-    """Search for an author by name."""
     url = f"{S2_API}/author/search"
     params = {"query": name, "limit": 1}
-
     try:
-        resp = requests.get(url, params=params, timeout = 10)
+        resp = requests.get(url, params=params, timeout=10)
         resp.raise_for_status()
         data = resp.json()
         if data.get("data"):
             return data["data"][0]
     except Exception as e:
-        print(f" Error searching for {name}: {e}")
+        print(f"  Error: {e}")
     return None
 
+
 def get_author_details(author_id: str) -> dict | None:
-    """Get detailed author info including papers."""
     url = f"{S2_API}/author/{author_id}"
     params = {
         "fields": "name,affiliations,homepage,hIndex,citationCount,paperCount,papers.title,papers.year,papers.abstract,papers.venue,papers.citationCount"
     }
-    
     try:
         resp = requests.get(url, params=params, timeout=10)
         resp.raise_for_status()
         return resp.json()
     except Exception as e:
-        print(f"  Error getting details for {author_id}: {e}")
+        print(f"  Error: {e}")
     return None
+
 
 def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
     existing = db.query(Faculty).filter(
-        Faculty.semantic_scholar_id == author["authorID"]
+        Faculty.semantic_scholar_id == author["authorId"]
     ).first()
-
+    
     if existing:
-        print(f" {author['name']} already exists, skipping")
+        print(f"  Already exists, skipping")
         return existing
-
-    affiliation = school
-
+    
     faculty = Faculty(
         semantic_scholar_id=author["authorId"],
         name=author["name"],
-        affiliation=author.get("affiliations", [None])[0] if author.get("affiliations") else None,
+        affiliation=school,
         homepage=author.get("homepage"),
         h_index=author.get("hIndex"),
         citation_count=author.get("citationCount"),
@@ -124,11 +122,11 @@ def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
     )
     db.add(faculty)
     db.flush()
-
+    
     papers = author.get("papers", [])
     papers_with_citations = [p for p in papers if p.get("citationCount") is not None]
     papers_sorted = sorted(papers_with_citations, key=lambda x: x["citationCount"], reverse=True)
-
+    
     for paper_data in papers_sorted[:20]:
         paper = Paper(
             faculty_id=faculty.id,
@@ -139,48 +137,51 @@ def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
             citation_count=paper_data.get("citationCount"),
         )
         db.add(paper)
+    
     db.commit()
-    print(f" Saved {author['name']} with {min(len(papers_sorted), 20)} papers")
+    print(f"  Saved {author['name']} ({school}) with {min(len(papers_sorted), 20)} papers")
     return faculty
+
 
 def fetch_all_faculty():
     db = SessionLocal()
-    
-    total_count = sum(len(faculty) for faculty in FACULTY_BY_SCHOOL.values())
+    total_count = sum(len(f) for f in FACULTY_BY_SCHOOL.values())
     processed = 0
     saved = 0
     failed = 0
-
+    
     try:
         for school, faculty_list in FACULTY_BY_SCHOOL.items():
-            print(f"Processing: {school} ({len(faculty_list)} faculty)")
-
+            print(f"\nProcessing: {school} ({len(faculty_list)} faculty)")
+            
             for name in faculty_list:
                 processed += 1
                 print(f"[{processed}/{total_count}] {name}")
-
-            search_result = search_author(name)
-            if not search_result:
-                print(f" Not Found: {name}")
-                failed += 1
-                continue
-
-            author = get_author_details(search_result["authorId"])
-            if not author:
-                failed += 1
-                continue
-
-            result = save_faculty(db, author, school)
-            if result:
-                saved += 1
-
-            save_faculty(db, author)
-            time.sleep(1.5)
-
-        print("\nFinished full pipeline. Processed: {processed}, Saved: {saved}, Failed: {failed}")
+                
+                search_result = search_author(name)
+                if not search_result:
+                    print(f"  Not found")
+                    failed += 1
+                    time.sleep(3)
+                    continue
+                
+                author = get_author_details(search_result["authorId"])
+                if not author:
+                    failed += 1
+                    time.sleep(3)
+                    continue
+                
+                result = save_faculty(db, author, school)
+                if result:
+                    saved += 1
+                
+                time.sleep(3)
+        
+        print(f"\nDONE! Processed: {processed}, Saved: {saved}, Failed: {failed}")
+        
     finally:
         db.close()
 
+
 if __name__ == "__main__":
     fetch_all_faculty()
-
