@@ -9,18 +9,68 @@ from app.models import Faculty, Paper
 
 S2_API = "https://api.semanticscholar.org/graph/v1"
 
-SEED_FACULTY = [
-    "Geoffrey Hinton",
-    "Yann LeCun",
-    "Yoshua Bengio",
-    "Fei-Fei Li",
-    "Andrew Ng",
-    "Demis Hassabis",
-    "Ilya Sutskever",
-    "Andrej Karpathy",
-    "Chris Manning",
-    "Michael I. Jordan",
-]
+FACULTY_BY_SCHOOL = {
+    "MIT": [
+        "Antonio Torralba", "Aleksander Madry", "Daniela Rus", "Tomás Lozano-Pérez",
+        "Leslie Kaelbling", "Joshua Tenenbaum", "Regina Barzilay", "Pulkit Agrawal",
+        "Samuel Madden", "Srini Devadas", "Armando Solar-Lezama", "Manolis Kellis",
+        "Dina Katabi", "Wojciech Matusik", "Ankur Moitra"
+    ],
+    "Stanford": [
+        "Christopher Manning", "Percy Liang", "Fei-Fei Li", "Chelsea Finn",
+        "Dorsa Sadigh", "Christopher Ré", "Jure Leskovec", "Dan Jurafsky",
+        "Tengyu Ma", "Stefano Ermon", "Monica Lam", "John Mitchell",
+        "Leonidas Guibas", "Jeannette Bohg", "Diyi Yang"
+    ],
+    "CMU": [
+        "Tom Mitchell", "Ruslan Salakhutdinov", "Zico Kolter", "Graham Neubig",
+        "Yonatan Bisk", "Katerina Fragkiadaki", "Barnabás Póczos", "Jeff Schneider",
+        "Emma Brunskill", "Abhinav Gupta", "Srinivas Narasimhan", "Martial Hebert",
+        "Manuel Blum", "David Andersen", "Virginia Smith"
+    ],
+    "UC Berkeley": [
+        "Pieter Abbeel", "Trevor Darrell", "Sergey Levine", "Dawn Song",
+        "Stuart Russell", "Michael Jordan", "Ion Stoica", "Joseph Gonzalez",
+        "Jitendra Malik", "Alexei Efros", "Ken Goldberg", "Anca Dragan",
+        "Alison Gopnik", "Raluca Ada Popa", "Moritz Hardt"
+    ],
+    "UIUC": [
+        "Jiawei Han", "ChengXiang Zhai", "Dan Roth", "Julia Hockenmaier",
+        "Svetlana Lazebnik", "David Forsyth", "Derek Hoiem", "Saurabh Sinha",
+        "Tandy Warnow", "Sanjay Kale", "Karrie Karahalios", "Ranjitha Kumar",
+        "Charith Mendis", "Yuxiong Wang", "Heng Ji"
+    ],
+    "Cornell": [
+        "Thorsten Joachims", "Kilian Weinberger", "Carla Gomes", "Bart Selman",
+        "Ashutosh Saxena", "Noah Snavely", "Serge Belongie", "Kavita Bala",
+        "Ross Tate", "Eva Tardos", "Jon Kleinberg", "Robert Kleinberg",
+        "Yoav Artzi", "Sasha Rush", "Chris De Sa"
+    ],
+    "UW": [
+        "Luke Zettlemoyer", "Noah Smith", "Yejin Choi", "Ali Farhadi",
+        "Carlos Guestrin", "Shyam Gollakota", "Ira Kemelmacher-Shlizerman", "Dieter Fox",
+        "Sham Kakade", "Sewoong Oh", "Su-In Lee", "Hannaneh Hajishirzi",
+        "Ranjay Krishna", "Adriana Schulz", "Zaid Harchaoui"
+    ],
+    "Georgia Tech": [
+        "Devi Parikh", "Dhruv Batra", "James Rehg", "Irfan Essa",
+        "Byron Boots", "Sonia Chernova", "Mark Riedl", "Charles Isbell",
+        "Polo Chau", "Le Song", "Judy Hoffman", "Zsolt Kira",
+        "Hao-Tsung Yang", "Matthew Gombolay", "Danfei Xu"
+    ],
+    "Princeton": [
+        "Sanjeev Arora", "Elad Hazan", "Karthik Narasimhan", "Danqi Chen",
+        "Jia Deng", "Olga Russakovsky", "Ryan Adams", "Tom Griffiths",
+        "Sebastian Seung", "Barbara Engelhardt", "Kai Li", "Jennifer Rexford",
+        "Aarti Gupta", "Adji Bousso Dieng", "Chi Jin"
+    ],
+    "UT Austin": [
+        "Peter Stone", "Scott Niekum", "Raymond Mooney", "Kristen Grauman",
+        "Philipp Krähenbühl", "Qixing Huang", "Greg Durrett", "Jessy Li",
+        "Yuke Zhu", "Chandrajit Bajaj", "William Hwang", "Roberto Martín-Martín",
+        "Amy Zhang", "Swarat Chaudhuri", "Isil Dillig"
+    ]
+}
 
 def search_author(name: str) -> dict | None:
     """Search for an author by name."""
@@ -54,7 +104,7 @@ def get_author_details(author_id: str) -> dict | None:
 
 def save_faculty(db: Session, author: dict) -> Faculty | None:
     existing = db.query(Faculty).filter(
-        Faculty.semantic_scholar_id == author["authorId"]
+        Faculty.semantic_scholar_id == author["authorID"]
     ).first()
 
     if existing:
