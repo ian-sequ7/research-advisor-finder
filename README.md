@@ -5,6 +5,7 @@ An AI-powered tool to help PhD applicants discover faculty whose research intere
 ## Live Demo
 
 **Frontend:** https://research-advisor-frontend.vercel.app
+
 **Backend:** https://research-advisor-finder-production.up.railway.app
 
 ## Cool Features
