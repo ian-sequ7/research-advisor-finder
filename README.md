@@ -1,4 +1,4 @@
-# Research Advisder Finder
+# Research Advisor Finder
 
 An AI-powered tool to help PhD applicants discover faculty whose research interests align with theirs.
 
@@ -15,7 +15,7 @@ An AI-powered tool to help PhD applicants discover faculty whose research intere
 
 ## Cool Features
 
-- *Semantic Search:* research inteerests in natural
+- *Semantic Search:* research interests in natural
 language
 - *Smart Matching:* Use OpenAI embeddings in order to find
 faculty that align with interests
