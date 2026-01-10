@@ -1,7 +1,3 @@
-"""
-Fetch faculty data from Semantic Scholar API using curated list.
-Run this to populate the database with faculty from top 10 CS programs.
-"""
 import requests
 import time
 from sqlalchemy.orm import Session
