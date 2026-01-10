@@ -2,7 +2,7 @@
 
 An AI-powered tool to help PhD applicants discover faculty whose research interests align with theirs.
 
-- Currently in progress. 
+Currently in progress 
     - MVP finished Jan 3rd
     - Improved Faculty Numbers Jan 8th
 ## Live Demo
@@ -13,18 +13,15 @@ An AI-powered tool to help PhD applicants discover faculty whose research intere
 
 ## Cool Features
 
-*Semantic Search:* research inteerests in natural language
-
-*Smart Matching:* Use OpenAI embeddings in order to find
+- *Semantic Search:* research inteerests in natural
+language
+- *Smart Matching:* Use OpenAI embeddings in order to find
 faculty that align with interests
-
-*Faculty Profiles:* Can view h-endex, citation counts, and
+- *Faculty Profiles:* Can view h-endex, citation counts, and
 top papers
-
-*AI Explanations:* Claude able to explain complete reasoning
+- *AI Explanations:* Claude able to explain complete reasoning
 for matching to certain faculty
-
-*Top Programs:* Currently includes faculty from MIT, CMU,
+- *Top Programs:* Currently includes faculty from MIT, CMU,
 Berkeley, and more
 
 - please note this will be updated with more as I have more
