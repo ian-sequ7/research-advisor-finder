@@ -44,7 +44,7 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
       return { label: 'Junior Faculty', className: 'bg-orange-100 text-orange-800' };
     }
     if(faculty.h_index > 30 && faculty.h_index < 60) {
-      return{ label: 'Medium Term Faculty', className: 'bg-yellow-100 text-yellow-800'}
+      return{ label: 'Rising Junior Faculty', className: 'bg-yellow-100 text-yellow-800'}
     } 
     if (faculty.h_index > 60) {
       return { label: 'Established Faculty', className: 'bg-green-100 text-green-800' };
