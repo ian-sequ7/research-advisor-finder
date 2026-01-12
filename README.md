@@ -3,9 +3,10 @@
 An AI-powered tool to help PhD applicants discover faculty whose research interests align with theirs.
 
 ### Development Notes
-- Currently in progress 
+- Currently in progress
     - MVP finished Jan 3rd
     - Improved Faculty Numbers Jan 8th
+    - Added Resources Page + Faculty Badges Jan 12th
 
 ## Live Demo
 
@@ -15,21 +16,18 @@ An AI-powered tool to help PhD applicants discover faculty whose research intere
 
 ## Cool Features
 
-- *Semantic Search:* research interests in natural
-language
-- *Smart Matching:* Use OpenAI embeddings in order to find
-faculty that align with interests
-- *Faculty Profiles:* Can view h-endex, citation counts, and
-top papers
-- *AI Explanations:* Claude able to explain complete reasoning
-for matching to certain faculty
-- *Top Programs:* Currently includes faculty from MIT, CMU,
-Berkeley, and more
+- *Semantic Search:* Research interests in natural language
+- *Smart Matching:* Use OpenAI embeddings to find faculty that align with interests
+- *Faculty Profiles:* View h-index, citation counts, and top papers
+- *Faculty Badges:* Junior Faculty (h-index < 30) and Established Faculty (h-index > 60) badges help identify career stage
+- *AI Explanations:* Claude explains reasoning for matching to certain faculty
+- *Resources Page:* Comprehensive guide on cold emailing professors, coffee chat best practices, questions to ask advisors, PhD application timeline, and red flags to watch for
+- *Top Programs:* Currently includes faculty from MIT, CMU, Berkeley, and more
 
 ## Tech Stack
 
 **Frontend:**
-- Next.js 14
+- Next.js 16
 - React
 - Tailwind CSS
 - shadcn/ui
