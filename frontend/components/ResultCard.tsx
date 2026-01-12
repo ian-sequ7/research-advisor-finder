@@ -38,6 +38,22 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
     ? 'bg-yellow-100 text-yellow-800'
     : 'bg-slate-100 text-slate-800';
 
+  const getFacultyBadge = () => {                                                                                                                                                                                     
+    if (faculty.h_index === null || faculty.h_index === undefined) return null;                                                                                                                                       
+    if (faculty.h_index < 30) {                                                                                                                                                                                       
+      return { label: 'Junior Faculty', className: 'bg-orange-100 text-orange-800' };
+    }
+    if(faculty.h_index > 30 && faculty.h_index < 60) {
+      return{ label: 'Medium Term Faculty', className: 'bg-yellow-100 text-yellow-800'}
+    } 
+    if (faculty.h_index > 60) {
+      return { label: 'Established Faculty', className: 'bg-green-100 text-green-800' };
+    }
+    return null; 
+  };
+
+  const facultyBadge = getFacultyBadge();
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -45,7 +61,12 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm text-muted-foreground">#{rank}</span>
-              <h3 className="text-lg font-semibold">{faculty.name}</h3>
+               <h3 className="text-lg font-semibold">{faculty.name}</h3>
+                {facultyBadge && (
+                  <Badge className={facultyBadge.className}>
+                    {facultyBadge.label}
+                  </Badge>
+                )}
             </div>
             <p className="text-sm text-muted-foreground">{faculty.affiliation}</p>
           </div>
