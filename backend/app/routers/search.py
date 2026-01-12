@@ -16,23 +16,31 @@ def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
 
     query_embedding = get_embedding(request.query)
 
+    where_clauses = ["embedding IS NOT NULL", "h_index >= :min_h"]
+    params = {
+        "embedding": str(query_embedding),
+        "min_h": request.min_h_index,
+        "limit": request.limit
+    }
+
+    if request.universities:
+        where_clauses.append("affiliation = ANY(:universities)")
+        params["universities"] = request.universities
+
+    where_sql = " AND ".join(where_clauses)
+
     results = db.execute(
-        text("""
-            SELECT 
+        text(f"""
+            SELECT
                 id, name, affiliation, h_index, paper_count,
                 semantic_scholar_id,
                 1 - (embedding <=> :embedding) as similarity
             FROM faculty
-            WHERE embedding IS NOT NULL
-            AND h_index >= :min_h
+            WHERE {where_sql}
             ORDER BY embedding <=> :embedding
             LIMIT :limit
         """),
-        {
-            "embedding": str(query_embedding),
-            "min_h": request.min_h_index,
-            "limit": request.limit
-        }
+        params
     ).fetchall()
 
 
