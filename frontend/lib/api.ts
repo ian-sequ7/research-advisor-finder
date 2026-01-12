@@ -26,7 +26,8 @@ export interface SearchResult {
 export async function searchFaculty(
   query: string,
   limit: number = 10,
-  minHIndex: number = 0
+  minHIndex: number = 0,
+  universities: string[] = []
 ): Promise<SearchResult[]> {
   const response = await fetch(`${API_URL}/api/search/`, {
     method: "POST",
@@ -35,6 +36,7 @@ export async function searchFaculty(
       query,
       limit,
       min_h_index: minHIndex,
+      universities: universities.length > 0 ? universities : null,
     }),
   });
 
