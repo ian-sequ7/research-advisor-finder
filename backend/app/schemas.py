@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class PaperResponse(BaseModel):
@@ -35,7 +35,7 @@ class SearchRequest(BaseModel):
     query: str
     limit: int = 10
     min_h_index: int = 0
-
+    universities: Optional[List[str]] = None
 
 class ExplanationRequest(BaseModel):
     interests: str
