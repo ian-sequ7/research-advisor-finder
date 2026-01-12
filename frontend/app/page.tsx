@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SearchResult, searchFaculty } from '@/lib/api';
 import { ResultCard } from '@/components/ResultCard';
 import { ResultSkeleton } from '@/components/ResultSkeleton';
 import { Filters } from '@/components/Filters';
-import { Loader2, Search, GraduationCap, AlertCircle } from 'lucide-react';
+import { Loader2, Search, GraduationCap, AlertCircle, BookOpen } from 'lucide-react';
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -48,9 +49,18 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
       {/* Header */}
       <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-semibold">Research Advisor Finder</h1>
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-semibold">Research Advisor Finder</h1>
+          </div>
+          <Link
+            href="/resources"
+            className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+          >
+            <BookOpen className="h-4 w-4" />
+            Resources
+          </Link>
         </div>
       </div>
 
