@@ -16,9 +16,9 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
 
-  // Filter state
   const [minHIndex, setMinHIndex] = useState(0);
   const [resultCount, setResultCount] = useState(10);
+  const [universities, setUniversities] = useState<string[]>([]);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -28,7 +28,7 @@ export default function Home() {
     setSearched(true);
 
     try {
-      const data = await searchFaculty(query, resultCount, minHIndex);
+      const data = await searchFaculty(query, resultCount, minHIndex, universities);
       setResults(data);
     } catch (err) {
       setError('Search failed. Please check your connection and try again.');
@@ -75,6 +75,8 @@ export default function Home() {
               setMinHIndex={setMinHIndex}
               resultCount={resultCount}
               setResultCount={setResultCount}
+              universities={universities}
+              setUniversities={setUniversities}
             />
           </div>
 
