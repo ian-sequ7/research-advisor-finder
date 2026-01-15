@@ -67,3 +67,43 @@ export async function getExplanation(
   const data = await response.json();
   return data.explanation;
 }
+
+export interface CVUploadResponse {
+  extracted_interests: string;
+  results: SearchResult[];
+}
+
+export interface CVUploadParams {
+  file: File;
+  limit?: number;
+  minHIndex?: number;
+  universities?: string[];
+}
+
+export async function uploadCV(params: CVUploadParams): Promise<CVUploadResponse> {
+  const formData = new FormData();
+  formData.append('file', params.file);
+
+  // Build query params
+  const queryParams = new URLSearchParams();
+  if (params.limit) queryParams.append('limit', params.limit.toString());
+  if (params.minHIndex) queryParams.append('min_h_index', params.minHIndex.toString());
+  if (params.universities) {
+    params.universities.forEach(u => queryParams.append('universities', u));
+  }
+
+  const url = `${API_URL}/api/upload/cv?${queryParams.toString()}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+    // Note: Don't set Content-Type header - browser sets it with boundary for multipart
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to upload CV');
+  }
+
+  return response.json();
+}
