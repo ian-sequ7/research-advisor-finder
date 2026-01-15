@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from sqlalchemy.dialects.postgresql import ARRAY
 from pgvector.sqlalchemy import Vector
 
 from app.database import Base
@@ -31,6 +32,7 @@ class Faculty(Base):
 
 
     research_sumary = Column(Text)
+    research_tags = Column(ARRAY(String), nullable=True)
 
     embedding = Column(Vector(1536))
 
