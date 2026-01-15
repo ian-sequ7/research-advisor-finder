@@ -20,6 +20,7 @@ class FacultyResponse(BaseModel):
     h_index: Optional[int]
     paper_count: Optional[int]
     semantic_scholar_id: Optional[str]
+    research_tags: list[str] = []
 
     class Config:
         from_attributes = True
@@ -42,8 +43,20 @@ class ExplanationRequest(BaseModel):
     faculty_id: int
 
 
+class BreakdownItem(BaseModel):
+    level: str  # High, Medium, Low
+    reason: str
+
+
+class ExplanationBreakdown(BaseModel):
+    topic_alignment: Optional[BreakdownItem] = None
+    paper_relevance: Optional[BreakdownItem] = None
+    research_fit: Optional[BreakdownItem] = None
+
+
 class ExplanationResponse(BaseModel):
     explanation: str
+    breakdown: Optional[ExplanationBreakdown] = None
 
 
 class CVUploadResponse(BaseModel):
