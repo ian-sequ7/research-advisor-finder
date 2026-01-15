@@ -33,7 +33,7 @@ def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
         text(f"""
             SELECT
                 id, name, affiliation, h_index, paper_count,
-                semantic_scholar_id,
+                semantic_scholar_id, research_tags,
                 1 - (embedding <=> :embedding) as similarity
             FROM faculty
             WHERE {where_sql}
@@ -58,6 +58,7 @@ def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
                 "h_index": row.h_index,
                 "paper_count": row.paper_count,
                 "semantic_scholar_id": row.semantic_scholar_id,
+                "research_tags": row.research_tags or [],
             },
             similarity=float(row.similarity),
             papers=[{
@@ -72,22 +73,25 @@ def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
 
 @router.post("/explain", response_model=ExplanationResponse)
 def explain_match(request: ExplanationRequest, db: Session = Depends(get_db)):
-    """Generate explanation for why a faculty member matches."""
+    """Generate explanation for why a faculty member matches, with breakdown."""
     faculty = db.query(Faculty).filter(Faculty.id == request.faculty_id).first()
     if not faculty:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Faculty not found")
-    
+
     papers = db.query(Paper).filter(
         Paper.faculty_id == faculty.id
     ).order_by(Paper.citation_count.desc()).limit(5).all()
-    
+
     paper_titles = [p.title for p in papers]
-    
-    explanation = generate_explanation(
+
+    result = generate_explanation(
         request.interests,
         faculty.name,
         paper_titles
     )
-    
-    return ExplanationResponse(explanation=explanation)
+
+    return ExplanationResponse(
+        explanation=result["explanation"],
+        breakdown=result.get("breakdown")
+    )
