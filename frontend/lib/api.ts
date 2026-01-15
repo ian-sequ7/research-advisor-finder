@@ -15,12 +15,29 @@ export interface Faculty {
   h_index: number | null;
   paper_count: number | null;
   semantic_scholar_id: string | null;
+  research_tags: string[];
 }
 
 export interface SearchResult {
   faculty: Faculty;
   similarity: number;
   papers: Paper[];
+}
+
+export interface BreakdownItem {
+  level: string; // High, Medium, Low
+  reason: string;
+}
+
+export interface ExplanationBreakdown {
+  topic_alignment?: BreakdownItem;
+  paper_relevance?: BreakdownItem;
+  research_fit?: BreakdownItem;
+}
+
+export interface ExplanationResponse {
+  explanation: string;
+  breakdown?: ExplanationBreakdown;
 }
 
 export async function searchFaculty(
@@ -50,7 +67,7 @@ export async function searchFaculty(
 export async function getExplanation(
   interests: string,
   facultyId: number
-): Promise<string> {
+): Promise<ExplanationResponse> {
   const response = await fetch(`${API_URL}/api/search/explain`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -64,8 +81,7 @@ export async function getExplanation(
     throw new Error("Explanation failed");
   }
 
-  const data = await response.json();
-  return data.explanation;
+  return response.json();
 }
 
 export interface CVUploadResponse {

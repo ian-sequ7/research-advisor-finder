@@ -5,17 +5,22 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { SearchResult, getExplanation } from '@/lib/api';
-import { ExternalLink, Loader2, Sparkles, FileText } from 'lucide-react';
+import { SearchResult, getExplanation, ExplanationBreakdown } from '@/lib/api';
+import { ResearchTags } from '@/components/ResearchTags';
+import { ExternalLink, Loader2, Sparkles, FileText, Plus, Check } from 'lucide-react';
 
 interface ResultCardProps {
   result: SearchResult;
   rank: number;
   interests: string;
+  onCompareToggle?: (result: SearchResult) => void;
+  isInCompare?: boolean;
+  compareDisabled?: boolean;
 }
 
-export function ResultCard({ result, rank, interests }: ResultCardProps) {
+export function ResultCard({ result, rank, interests, onCompareToggle, isInCompare, compareDisabled }: ResultCardProps) {
   const [explanation, setExplanation] = useState<string | null>(null);
+  const [breakdown, setBreakdown] = useState<ExplanationBreakdown | null>(null);
   const [loadingExplanation, setLoadingExplanation] = useState(false);
 
   const { faculty, similarity, papers } = result;
@@ -23,12 +28,39 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
   const handleExplain = async () => {
     setLoadingExplanation(true);
     try {
-      const text = await getExplanation(interests, faculty.id);
-      setExplanation(text);
+      const response = await getExplanation(interests, faculty.id);
+      setExplanation(response.explanation);
+      setBreakdown(response.breakdown || null);
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingExplanation(false);
+    }
+  };
+
+  const getLevelColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'high':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-slate-100 text-slate-600';
+      default:
+        return 'bg-slate-100 text-slate-600';
+    }
+  };
+
+  const getLevelIcon = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'high':
+        return '✓';
+      case 'medium':
+        return '~';
+      case 'low':
+        return '○';
+      default:
+        return '○';
     }
   };
 
@@ -69,6 +101,7 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
                 )}
             </div>
             <p className="text-sm text-muted-foreground">{faculty.affiliation}</p>
+            <ResearchTags tags={faculty.research_tags} />
           </div>
           <Badge className={matchColor}>
             {Math.round(similarity * 100)}% match
@@ -105,10 +138,19 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
             <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
               <FileText className="h-4 w-4" /> Top Papers
             </h4>
-            <ul className="space-y-1">
-              {papers.slice(0, 3).map((paper) => (
-                <li key={paper.id} className="text-sm text-muted-foreground">
-                  • {paper.title} ({paper.year})
+            <ul className="space-y-1.5">
+              {papers.slice(0, 5).map((paper) => (
+                <li key={paper.id} className="text-sm text-muted-foreground flex items-start gap-1">
+                  <span className="mt-0.5">•</span>
+                  <span className="flex-1">
+                    {paper.title.length > 80 ? `${paper.title.slice(0, 80)}...` : paper.title}
+                    {paper.year && ` (${paper.year})`}
+                    {paper.citation_count !== null && paper.citation_count > 0 && (
+                      <Badge variant="outline" className="ml-2 text-xs py-0 h-5">
+                        {paper.citation_count} citations
+                      </Badge>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -116,26 +158,66 @@ export function ResultCard({ result, rank, interests }: ResultCardProps) {
         )}
 
         {explanation ? (
-          <div className="bg-primary/5 rounded-lg p-4">
+          <div className="bg-primary/5 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
               <Sparkles className="h-4 w-4" /> Why this matches
             </h4>
             <p className="text-sm">{explanation}</p>
-          </div>
-        ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExplain}
-            disabled={loadingExplanation}
-          >
-            {loadingExplanation ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-            ) : (
-              <><Sparkles className="mr-2 h-4 w-4" /> Explain Match</>
+
+            {breakdown && (
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-primary/10">
+                {breakdown.topic_alignment && (
+                  <Badge className={`${getLevelColor(breakdown.topic_alignment.level)} text-xs`}>
+                    {getLevelIcon(breakdown.topic_alignment.level)} Topic: {breakdown.topic_alignment.level}
+                  </Badge>
+                )}
+                {breakdown.paper_relevance && (
+                  <Badge className={`${getLevelColor(breakdown.paper_relevance.level)} text-xs`}>
+                    {getLevelIcon(breakdown.paper_relevance.level)} Papers: {breakdown.paper_relevance.level}
+                  </Badge>
+                )}
+                {breakdown.research_fit && (
+                  <Badge className={`${getLevelColor(breakdown.research_fit.level)} text-xs`}>
+                    {getLevelIcon(breakdown.research_fit.level)} Fit: {breakdown.research_fit.level}
+                  </Badge>
+                )}
+              </div>
             )}
-          </Button>
-        )}
+          </div>
+        ) : null}
+
+        <div className="flex gap-2">
+          {!explanation && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExplain}
+              disabled={loadingExplanation}
+            >
+              {loadingExplanation ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
+              ) : (
+                <><Sparkles className="mr-2 h-4 w-4" /> Explain Match</>
+              )}
+            </Button>
+          )}
+          {onCompareToggle && (
+            <Button
+              variant={isInCompare ? "default" : "outline"}
+              size="sm"
+              onClick={() => onCompareToggle(result)}
+              disabled={compareDisabled && !isInCompare}
+              title={compareDisabled && !isInCompare ? "Maximum 3 faculty can be compared" : undefined}
+              className={isInCompare ? "bg-blue-600 hover:bg-blue-700" : ""}
+            >
+              {isInCompare ? (
+                <><Check className="mr-2 h-4 w-4" /> In Compare</>
+              ) : (
+                <><Plus className="mr-2 h-4 w-4" /> Add to Compare</>
+              )}
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

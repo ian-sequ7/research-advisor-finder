@@ -10,6 +10,8 @@ import { ResultCard } from '@/components/ResultCard';
 import { ResultSkeleton } from '@/components/ResultSkeleton';
 import { Filters } from '@/components/Filters';
 import { Loader2, Search, GraduationCap, AlertCircle, BookOpen } from 'lucide-react';
+import { CompareBar } from '@/components/CompareBar';
+import { CompareModal } from '@/components/CompareModal';
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -26,6 +28,28 @@ export default function Home() {
   const [searchMode, setSearchMode] = useState<'text' | 'cv'>('text');
   const [extractedInterests, setExtractedInterests] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Compare state
+  const [compareList, setCompareList] = useState<SearchResult[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
+
+  const toggleCompare = (result: SearchResult) => {
+    setCompareList((prev) => {
+      const exists = prev.some((r) => r.faculty.id === result.faculty.id);
+      if (exists) {
+        return prev.filter((r) => r.faculty.id !== result.faculty.id);
+      }
+      // Max 3 faculty
+      if (prev.length >= 3) {
+        return prev;
+      }
+      return [...prev, result];
+    });
+  };
+
+  const clearCompare = () => {
+    setCompareList([]);
+  };
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -219,13 +243,16 @@ export default function Home() {
             <h2 className="text-lg font-medium mb-4">
               Top {results.length} Matches
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-4 pb-20">
               {results.map((result, index) => (
                 <ResultCard
                   key={result.faculty.id}
                   result={result}
                   rank={index + 1}
                   interests={extractedInterests || query}
+                  onCompareToggle={toggleCompare}
+                  isInCompare={compareList.some((r) => r.faculty.id === result.faculty.id)}
+                  compareDisabled={compareList.length >= 3 && !compareList.some((r) => r.faculty.id === result.faculty.id)}
                 />
               ))}
             </div>
@@ -241,6 +268,22 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Compare Bar */}
+      <CompareBar
+        selected={compareList}
+        onRemove={(id) => setCompareList((prev) => prev.filter((r) => r.faculty.id !== id))}
+        onCompare={() => setShowCompare(true)}
+        onClear={clearCompare}
+      />
+
+      {/* Compare Modal */}
+      <CompareModal
+        isOpen={showCompare}
+        onClose={() => setShowCompare(false)}
+        selected={compareList}
+        interests={extractedInterests || query}
+      />
     </main>
   );
 }
