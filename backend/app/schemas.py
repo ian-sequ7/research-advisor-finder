@@ -44,3 +44,9 @@ class ExplanationRequest(BaseModel):
 
 class ExplanationResponse(BaseModel):
     explanation: str
+
+
+class CVUploadResponse(BaseModel):
+    """Response for CV upload endpoint."""
+    extracted_interests: str
+    results: list[SearchResult]
