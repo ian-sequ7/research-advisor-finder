@@ -1,5 +1,9 @@
 import sys
-sys.path.insert(0, '/app')
+import os
+
+# Support both local (PYTHONPATH) and container (/app) usage
+if os.path.exists('/app'):
+    sys.path.insert(0, '/app')
 
 from sqlalchemy import text
 from app.database import engine, Base
