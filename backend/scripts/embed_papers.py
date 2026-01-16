@@ -5,12 +5,30 @@ import time
 # Support both Docker (/app) and local execution
 sys.path.insert(0, '/app')
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from sqlalchemy import text
 from openai import OpenAI
-from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import SessionLocal, engine
 from app.models import Paper
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+
+def ensure_embedding_column():
+    """Add embedding column to papers table if it doesn't exist."""
+    with engine.connect() as conn:
+        # Check if column exists
+        result = conn.execute(text("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = 'papers' AND column_name = 'embedding'
+        """))
+        if result.fetchone() is None:
+            print("Adding embedding column to papers table...")
+            conn.execute(text("ALTER TABLE papers ADD COLUMN embedding vector(1536)"))
+            conn.commit()
+            print("Column added!")
+        else:
+            print("Embedding column already exists.")
 
 def get_embedding(text: str) -> list[float]:
     """Get embedding using OpenAI text-embedding-3-small."""
@@ -122,6 +140,9 @@ if __name__ == "__main__":
     parser.add_argument("--count", action="store_true", help="Just count papers")
     parser.add_argument("--batch-size", type=int, default=50, help="Commit batch size")
     args = parser.parse_args()
+
+    # Ensure the embedding column exists before doing anything
+    ensure_embedding_column()
 
     if args.count:
         count_papers()
