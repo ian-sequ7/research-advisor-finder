@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
+import uuid
 
 
 class PaperResponse(BaseModel):
@@ -82,7 +83,7 @@ class ExplorePaper(BaseModel):
 
 class ExploreStartRequest(BaseModel):
     """Request to start exploration session."""
-    initial_interest: str
+    initial_interest: str = Field(min_length=3, max_length=500)
 
 
 class ExploreStartResponse(BaseModel):
@@ -94,8 +95,8 @@ class ExploreStartResponse(BaseModel):
 
 class ExploreRespondRequest(BaseModel):
     """User's response during exploration."""
-    session_id: str
-    response: str
+    session_id: str = Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    response: str = Field(min_length=1, max_length=2000)
 
 
 class ExploreRespondResponse(BaseModel):
