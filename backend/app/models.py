@@ -55,5 +55,7 @@ class Paper(Base):
     venue = Column(String(500))
     citation_count = Column(Integer)
 
+    embedding = Column(Vector(1536), nullable=True)
+
     faculty = relationship("Faculty", back_populates="papers")
 
