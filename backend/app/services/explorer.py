@@ -6,11 +6,13 @@ through guided paper exploration.
 """
 import os
 import uuid
-from datetime import datetime
+import json
+import threading
+from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from typing import Optional
 
-from anthropic import Anthropic
+from anthropic import Anthropic, APIError, APIConnectionError, RateLimitError, APITimeoutError
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
@@ -18,8 +20,12 @@ from app.services.embeddings import get_embedding
 from app.models import Paper, Faculty
 
 
-# In-memory session storage
+# In-memory session storage with thread-safe lock
 _sessions: dict[str, "ExploreSession"] = {}
+_sessions_lock = threading.Lock()
+
+# Session TTL: 1 hour
+SESSION_TTL = timedelta(hours=1)
 
 
 @dataclass
@@ -41,18 +47,28 @@ def create_session(initial_interest: str) -> ExploreSession:
         session_id=session_id,
         initial_interest=initial_interest
     )
-    _sessions[session_id] = session
+    with _sessions_lock:
+        _sessions[session_id] = session
     return session
 
 
 def get_session(session_id: str) -> Optional[ExploreSession]:
-    """Get an existing session."""
-    return _sessions.get(session_id)
+    """Get an existing session. Returns None if expired or not found."""
+    with _sessions_lock:
+        session = _sessions.get(session_id)
+        if session:
+            # Check if session has expired (TTL = 1 hour)
+            if datetime.now() - session.created_at > SESSION_TTL:
+                # Session expired, remove it
+                _sessions.pop(session_id, None)
+                return None
+        return session
 
 
 def delete_session(session_id: str) -> None:
     """Delete a session."""
-    _sessions.pop(session_id, None)
+    with _sessions_lock:
+        _sessions.pop(session_id, None)
 
 
 def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit: int = 4) -> list[Paper]:
@@ -176,24 +192,34 @@ Respond in this exact JSON format:
     "convergence_reason": "why or why not converged"
 }}"""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=500,
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    # Parse JSON from response
-    import json
     try:
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=500,
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        # Parse JSON from response
         result = json.loads(response.content[0].text)
-    except json.JSONDecodeError:
-        # Fallback: extract what we can
+    except (APIError, APIConnectionError, RateLimitError, APITimeoutError) as e:
+        # LLM API error - return fallback with user's raw response
         result = {
             "liked": [],
             "disliked": [],
             "curious": [],
             "refined_query": user_response,
-            "is_converged": False
+            "is_converged": False,
+            "convergence_reason": f"API error: {str(e)}"
+        }
+    except json.JSONDecodeError:
+        # JSON parsing error - fallback to user response
+        result = {
+            "liked": [],
+            "disliked": [],
+            "curious": [],
+            "refined_query": user_response,
+            "is_converged": False,
+            "convergence_reason": "Failed to parse LLM response"
         }
 
     return result
@@ -230,16 +256,22 @@ Respond in JSON format:
     "description": "Description of their specific interests and what they want to explore."
 }}"""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=300,
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    import json
     try:
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+
         result = json.loads(response.content[0].text)
+    except (APIError, APIConnectionError, RateLimitError, APITimeoutError):
+        # LLM API error - return fallback based on session data
+        result = {
+            "title": "Research Direction",
+            "description": f"Based on your interest in {session.initial_interest} and exploration of related topics."
+        }
     except json.JSONDecodeError:
+        # JSON parsing error - return fallback
         result = {
             "title": "Research Direction",
             "description": f"Based on your interest in {session.initial_interest} and exploration of related topics."
@@ -284,11 +316,16 @@ Faculty: {row.name} at {row.affiliation}
 Research areas: {', '.join(row.research_tags or [])}
 Top paper: {top_paper.title if top_paper else 'N/A'}"""
 
-        explanation_response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=100,
-            messages=[{"role": "user", "content": explanation_prompt}]
-        )
+        try:
+            explanation_response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=100,
+                messages=[{"role": "user", "content": explanation_prompt}]
+            )
+            explanation = explanation_response.content[0].text.strip()
+        except (APIError, APIConnectionError, RateLimitError, APITimeoutError):
+            # LLM API error - fallback to basic explanation
+            explanation = f"Research focus aligns with {', '.join(row.research_tags[:3] if row.research_tags else ['your interests'])}."
 
         matches.append({
             "faculty": {
@@ -301,7 +338,7 @@ Top paper: {top_paper.title if top_paper else 'N/A'}"""
                 "research_tags": row.research_tags or []
             },
             "similarity": float(row.similarity),
-            "explanation": explanation_response.content[0].text.strip(),
+            "explanation": explanation,
             "key_paper": top_paper.title if top_paper else None
         })
 
