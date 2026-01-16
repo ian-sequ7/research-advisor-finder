@@ -10,6 +10,10 @@ if not DATABASE_URL:
     print("ERROR: DATABASE_URL not set")
     exit(1)
 
+# SQLAlchemy requires postgresql:// not postgres://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 engine = create_engine(DATABASE_URL)
 
 def add_research_tags_column():
