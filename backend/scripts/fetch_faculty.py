@@ -109,11 +109,11 @@ def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
     existing = db.query(Faculty).filter(
         Faculty.semantic_scholar_id == author["authorId"]
     ).first()
-    
+
     if existing:
         print(f"  Already exists, skipping")
         return existing
-    
+
     faculty = Faculty(
         semantic_scholar_id=author["authorId"],
         name=author["name"],
@@ -125,11 +125,11 @@ def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
     )
     db.add(faculty)
     db.flush()
-    
+
     papers = author.get("papers", [])
     papers_with_citations = [p for p in papers if p.get("citationCount") is not None]
     papers_sorted = sorted(papers_with_citations, key=lambda x: x["citationCount"], reverse=True)
-    
+
     for paper_data in papers_sorted[:20]:
         paper = Paper(
             faculty_id=faculty.id,
@@ -140,7 +140,7 @@ def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
             citation_count=paper_data.get("citationCount"),
         )
         db.add(paper)
-    
+
     db.commit()
     print(f"  Saved {author['name']} ({school}) with {min(len(papers_sorted), 20)} papers")
     return faculty
@@ -152,36 +152,36 @@ def fetch_all_faculty():
     processed = 0
     saved = 0
     failed = 0
-    
+
     try:
         for school, faculty_list in FACULTY_BY_SCHOOL.items():
             print(f"\nProcessing: {school} ({len(faculty_list)} faculty)")
-            
+
             for name in faculty_list:
                 processed += 1
                 print(f"[{processed}/{total_count}] {name}")
-                
+
                 search_result = search_author(name)
                 if not search_result:
                     print(f"  Not found")
                     failed += 1
                     time.sleep(3)
                     continue
-                
+
                 author = get_author_details(search_result["authorId"])
                 if not author:
                     failed += 1
                     time.sleep(3)
                     continue
-                
+
                 result = save_faculty(db, author, school)
                 if result:
                     saved += 1
-                
+
                 time.sleep(3)
-        
+
         print(f"\nDONE! Processed: {processed}, Saved: {saved}, Failed: {failed}")
-        
+
     finally:
         db.close()
 

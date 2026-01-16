@@ -7,13 +7,7 @@ interface ResearchTagsProps {
   maxDisplay?: number;
 }
 
-/**
- * Renders research area tags as colored badges.
- * Truncates with "+N more" if > maxDisplay.
- * Graceful empty state (renders nothing, not "No tags").
- */
 export function ResearchTags({ tags, maxDisplay = 5 }: ResearchTagsProps) {
-  // Return nothing for empty tags (graceful empty state)
   if (!tags || tags.length === 0) {
     return null;
   }

@@ -4,14 +4,13 @@ import Link from 'next/link';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Header } from '@/components/Header';
 import {
-  GraduationCap,
   Mail,
   Coffee,
   HelpCircle,
   Calendar,
   AlertTriangle,
-  ChevronLeft,
   CheckCircle,
   XCircle,
   Clock,
@@ -23,25 +22,9 @@ import {
 export default function Resources() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-semibold">Resources</h1>
-          </div>
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Search
-          </Link>
-        </div>
-      </div>
+      <Header currentPage="resources" />
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        {/* Intro */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-2">
             How to Find Your Perfect Research Advisor
@@ -52,7 +35,6 @@ export default function Resources() {
           </p>
         </div>
 
-        {/* Table of Contents */}
         <Card>
           <CardHeader className="pb-3">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -81,7 +63,6 @@ export default function Resources() {
           </CardContent>
         </Card>
 
-        {/* Section 1: Cold Email */}
         <Card id="cold-email">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -93,7 +74,6 @@ export default function Resources() {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Email Structure */}
             <div>
               <h4 className="font-medium mb-3 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -129,7 +109,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Email Template */}
             <div>
               <h4 className="font-medium mb-3">Email Template</h4>
               <div className="bg-slate-900 text-slate-100 rounded-lg p-4 text-sm font-mono overflow-x-auto">
@@ -160,7 +139,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Do's and Don'ts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4 className="font-medium mb-3 flex items-center gap-2 text-green-700">
@@ -222,7 +200,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Follow-up Timing */}
             <div>
               <h4 className="font-medium mb-3 flex items-center gap-2">
                 <Clock className="h-4 w-4" />
@@ -246,7 +223,6 @@ export default function Resources() {
           </CardContent>
         </Card>
 
-        {/* Section 2: Coffee Chat */}
         <Card id="coffee-chat">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -258,7 +234,6 @@ export default function Resources() {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Format */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-slate-50 rounded-lg p-4 text-center">
                 <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
@@ -279,7 +254,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Preparation Checklist */}
             <div>
               <h4 className="font-medium mb-3">Preparation Checklist</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -301,7 +275,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Etiquette Tips */}
             <div>
               <h4 className="font-medium mb-3">Etiquette Tips</h4>
               <ul className="space-y-2 text-sm">
@@ -322,7 +295,6 @@ export default function Resources() {
           </CardContent>
         </Card>
 
-        {/* Section 3: Questions to Ask */}
         <Card id="questions">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -334,7 +306,6 @@ export default function Resources() {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Mentorship Style */}
             <div>
               <h4 className="font-medium mb-3 flex items-center gap-2">
                 <Badge className="bg-blue-100 text-blue-800">Critical</Badge>
@@ -350,7 +321,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Lab Culture */}
             <div>
               <h4 className="font-medium mb-3">Lab Culture & Structure</h4>
               <ul className="space-y-2 text-sm">
@@ -363,7 +333,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Funding */}
             <div>
               <h4 className="font-medium mb-3 flex items-center gap-2">
                 <Badge className="bg-green-100 text-green-800">Important</Badge>
@@ -379,7 +348,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Outcomes */}
             <div>
               <h4 className="font-medium mb-3">Graduation & Career Outcomes</h4>
               <ul className="space-y-2 text-sm">
@@ -392,7 +360,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* Ask Current Students */}
             <div className="bg-amber-50 rounded-lg p-4">
               <h4 className="font-medium mb-2 flex items-center gap-2 text-amber-800">
                 <AlertTriangle className="h-4 w-4" />
@@ -408,7 +375,6 @@ export default function Resources() {
           </CardContent>
         </Card>
 
-        {/* Section 4: Timeline */}
         <Card id="timeline">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -484,7 +450,6 @@ export default function Resources() {
           </CardContent>
         </Card>
 
-        {/* Section 5: Red Flags */}
         <Card id="red-flags">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -496,7 +461,6 @@ export default function Resources() {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Critical Red Flags */}
             <div>
               <h4 className="font-medium mb-3 flex items-center gap-2 text-red-700">
                 <XCircle className="h-4 w-4" />
@@ -539,7 +503,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* How to Vet */}
             <div>
               <h4 className="font-medium mb-3">How to Vet Advisors</h4>
               <ol className="space-y-2 text-sm list-decimal list-inside">
@@ -555,7 +518,6 @@ export default function Resources() {
 
             <Separator />
 
-            {/* If You're Already In a Bad Situation */}
             <div className="bg-amber-50 rounded-lg p-4">
               <h4 className="font-medium mb-2 text-amber-800">If You Realize Your Advisor Is Toxic</h4>
               <p className="text-sm text-amber-900 mb-3">
@@ -571,7 +533,6 @@ export default function Resources() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
         <div className="text-center text-sm text-muted-foreground py-8">
           <p className="mb-2">
             Content based on research from academic career resources including{' '}

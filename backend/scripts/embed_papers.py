@@ -2,7 +2,6 @@ import sys
 import os
 import time
 
-# Support both Docker (/app) and local execution
 sys.path.insert(0, '/app')
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -15,9 +14,7 @@ client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 
 def ensure_embedding_column():
-    """Add embedding column to papers table if it doesn't exist."""
     with engine.connect() as conn:
-        # Check if column exists
         result = conn.execute(text("""
             SELECT column_name FROM information_schema.columns
             WHERE table_name = 'papers' AND column_name = 'embedding'
@@ -31,7 +28,6 @@ def ensure_embedding_column():
             print("Embedding column already exists.")
 
 def get_embedding(text: str) -> list[float]:
-    """Get embedding using OpenAI text-embedding-3-small."""
     response = client.embeddings.create(
         input=text,
         model="text-embedding-3-small"
@@ -39,11 +35,9 @@ def get_embedding(text: str) -> list[float]:
     return response.data[0].embedding
 
 def build_paper_text(paper: Paper) -> str:
-    """Build text for embedding from paper title and abstract."""
     parts = [paper.title]
 
     if paper.abstract:
-        # Truncate very long abstracts to stay within token limits
         abstract = paper.abstract[:2000]
         parts.append(abstract)
 
@@ -53,11 +47,9 @@ def build_paper_text(paper: Paper) -> str:
     return "\n".join(parts)
 
 def embed_all_papers(batch_size: int = 50):
-    """Generate embeddings for all papers without embeddings that have abstracts."""
     db = SessionLocal()
 
     try:
-        # Get papers without embeddings that have abstracts
         papers = db.query(Paper).filter(
             Paper.embedding.is_(None),
             Paper.abstract.isnot(None),
@@ -77,15 +69,12 @@ def embed_all_papers(batch_size: int = 50):
 
         for i, paper in enumerate(papers):
             try:
-                # Build text and get embedding
                 text = build_paper_text(paper)
                 embedding = get_embedding(text)
 
-                # Save embedding
                 paper.embedding = embedding
                 embedded += 1
 
-                # Commit in batches
                 if (i + 1) % batch_size == 0:
                     db.commit()
                     elapsed = time.time() - start_time
@@ -98,7 +87,6 @@ def embed_all_papers(batch_size: int = 50):
                 errors += 1
                 continue
 
-        # Final commit
         db.commit()
 
         elapsed = time.time() - start_time
@@ -109,7 +97,6 @@ def embed_all_papers(batch_size: int = 50):
 
 
 def count_papers():
-    """Count papers that need embedding."""
     db = SessionLocal()
     try:
         need_embedding = db.query(Paper).filter(
@@ -141,7 +128,6 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=50, help="Commit batch size")
     args = parser.parse_args()
 
-    # Ensure the embedding column exists before doing anything
     ensure_embedding_column()
 
     if args.count:

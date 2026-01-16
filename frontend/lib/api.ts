@@ -25,7 +25,7 @@ export interface SearchResult {
 }
 
 export interface BreakdownItem {
-  level: string; // High, Medium, Low
+  level: string;
   reason: string;
 }
 
@@ -100,7 +100,6 @@ export async function uploadCV(params: CVUploadParams): Promise<CVUploadResponse
   const formData = new FormData();
   formData.append('file', params.file);
 
-  // Build query params
   const queryParams = new URLSearchParams();
   if (params.limit) queryParams.append('limit', params.limit.toString());
   if (params.minHIndex) queryParams.append('min_h_index', params.minHIndex.toString());
@@ -113,7 +112,6 @@ export async function uploadCV(params: CVUploadParams): Promise<CVUploadResponse
   const response = await fetch(url, {
     method: 'POST',
     body: formData,
-    // Note: Don't set Content-Type header - browser sets it with boundary for multipart
   });
 
   if (!response.ok) {
@@ -123,8 +121,6 @@ export async function uploadCV(params: CVUploadParams): Promise<CVUploadResponse
 
   return response.json();
 }
-
-// ============== Explore (Research Path Explorer) ==============
 
 export interface ExplorePaper {
   id: number;

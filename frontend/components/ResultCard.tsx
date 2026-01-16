@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { SearchResult, getExplanation, ExplanationBreakdown } from '@/lib/api';
 import { ResearchTags } from '@/components/ResearchTags';
+import { getMatchColor, getFacultyBadge } from '@/lib/faculty-utils';
 import { ExternalLink, Loader2, Sparkles, FileText, Plus, Check } from 'lucide-react';
 
 interface ResultCardProps {
@@ -64,27 +65,8 @@ export function ResultCard({ result, rank, interests, onCompareToggle, isInCompa
     }
   };
 
-  const matchColor = similarity > 0.5
-    ? 'bg-green-100 text-green-800'
-    : similarity > 0.35
-    ? 'bg-yellow-100 text-yellow-800'
-    : 'bg-slate-100 text-slate-800';
-
-  const getFacultyBadge = () => {                                                                                                                                                                                     
-    if (faculty.h_index === null || faculty.h_index === undefined) return null;                                                                                                                                       
-    if (faculty.h_index < 30) {                                                                                                                                                                                       
-      return { label: 'Junior Faculty', className: 'bg-orange-100 text-orange-800' };
-    }
-    if(faculty.h_index > 30 && faculty.h_index < 60) {
-      return{ label: 'Rising Junior Faculty', className: 'bg-yellow-100 text-yellow-800'}
-    } 
-    if (faculty.h_index > 60) {
-      return { label: 'Established Faculty', className: 'bg-green-100 text-green-800' };
-    }
-    return null; 
-  };
-
-  const facultyBadge = getFacultyBadge();
+  const matchColor = getMatchColor(similarity);
+  const facultyBadge = getFacultyBadge(faculty.h_index);
 
   return (
     <Card>

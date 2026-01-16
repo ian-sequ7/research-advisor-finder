@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { ResearchTags } from '@/components/ResearchTags';
 import { SearchResult } from '@/lib/api';
+import { getMatchColor, getFacultyBadge } from '@/lib/faculty-utils';
 import { ExternalLink, FileText } from 'lucide-react';
 
 interface CompareModalProps {
@@ -14,26 +15,6 @@ interface CompareModalProps {
 }
 
 export function CompareModal({ isOpen, onClose, selected, interests }: CompareModalProps) {
-  const getMatchColor = (similarity: number) => {
-    if (similarity > 0.5) return 'bg-green-100 text-green-800';
-    if (similarity > 0.35) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-slate-100 text-slate-800';
-  };
-
-  const getFacultyBadge = (hIndex: number | null) => {
-    if (hIndex === null || hIndex === undefined) return null;
-    if (hIndex < 30) {
-      return { label: 'Junior Faculty', className: 'bg-orange-100 text-orange-800' };
-    }
-    if (hIndex > 30 && hIndex < 60) {
-      return { label: 'Rising Junior Faculty', className: 'bg-yellow-100 text-yellow-800' };
-    }
-    if (hIndex > 60) {
-      return { label: 'Established Faculty', className: 'bg-green-100 text-green-800' };
-    }
-    return null;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">

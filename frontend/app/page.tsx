@@ -9,9 +9,10 @@ import CVUpload from '@/components/CVUpload';
 import { ResultCard } from '@/components/ResultCard';
 import { ResultSkeleton } from '@/components/ResultSkeleton';
 import { Filters } from '@/components/Filters';
-import { Loader2, Search, GraduationCap, AlertCircle, BookOpen, Compass } from 'lucide-react';
+import { Loader2, Search, AlertCircle } from 'lucide-react';
 import { CompareBar } from '@/components/CompareBar';
 import { CompareModal } from '@/components/CompareModal';
+import { Header } from '@/components/Header';
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -24,12 +25,10 @@ export default function Home() {
   const [resultCount, setResultCount] = useState(10);
   const [universities, setUniversities] = useState<string[]>([]);
 
-  // CV Upload state
   const [searchMode, setSearchMode] = useState<'text' | 'cv'>('text');
   const [extractedInterests, setExtractedInterests] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Compare state
   const [compareList, setCompareList] = useState<SearchResult[]>([]);
   const [showCompare, setShowCompare] = useState(false);
 
@@ -39,7 +38,6 @@ export default function Home() {
       if (exists) {
         return prev.filter((r) => r.faculty.id !== result.faculty.id);
       }
-      // Max 3 faculty
       if (prev.length >= 3) {
         return prev;
       }
@@ -101,36 +99,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-semibold">Research Advisor Finder</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/explore"
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
-            >
-              <Compass className="h-4 w-4" />
-              Explore
-            </Link>
-            <Link
-              href="/resources"
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
-            >
-              <BookOpen className="h-4 w-4" />
-              Resources
-            </Link>
-          </div>
-        </div>
-      </div>
+      <Header currentPage="search" />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Search Section */}
         <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
-          {/* Mode Toggle */}
           <div className="flex gap-2 mb-4">
             <button
               onClick={() => setSearchMode('text')}
@@ -172,7 +144,6 @@ export default function Home() {
                   <p className="text-sm text-slate-600 whitespace-pre-wrap">{extractedInterests}</p>
                 </div>
               )}
-              {/* Filters */}
               <div className="mt-4">
                 <Filters
                   minHIndex={minHIndex}
@@ -197,7 +168,6 @@ export default function Home() {
                 onKeyDown={handleKeyDown}
               />
 
-              {/* Filters */}
               <div className="mb-4">
                 <Filters
                   minHIndex={minHIndex}
@@ -229,7 +199,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Error */}
         {error && (
           <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-2">
             <AlertCircle className="h-5 w-5" />
@@ -237,7 +206,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Loading Skeletons */}
         {loading && (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
@@ -246,7 +214,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Results */}
         {!loading && results.length > 0 && (
           <div>
             <h2 className="text-lg font-medium mb-4">
@@ -268,7 +235,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && searched && results.length === 0 && !error && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
@@ -278,7 +244,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Compare Bar */}
       <CompareBar
         selected={compareList}
         onRemove={(id) => setCompareList((prev) => prev.filter((r) => r.faculty.id !== id))}
@@ -286,7 +251,6 @@ export default function Home() {
         onClear={clearCompare}
       />
 
-      {/* Compare Modal */}
       <CompareModal
         isOpen={showCompare}
         onClose={() => setShowCompare(false)}

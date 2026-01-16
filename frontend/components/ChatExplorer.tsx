@@ -69,7 +69,6 @@ export function ChatExplorer() {
   const [round, setRound] = useState(0);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  // Scroll to top when state changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [state]);
@@ -165,7 +164,6 @@ export function ChatExplorer() {
     }
   };
 
-  // Start state - enter initial interest
   if (state === 'start') {
     return (
       <div className="space-y-4">
@@ -207,7 +205,6 @@ export function ChatExplorer() {
     );
   }
 
-  // Finished state - show results
   if (state === 'finished' && result) {
     return (
       <div className="space-y-6">
@@ -243,10 +240,8 @@ export function ChatExplorer() {
     );
   }
 
-  // Exploring or Ready state
   return (
     <div className="space-y-6">
-      {/* Progress indicator */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>Round {round}</span>
         {state === 'ready' && (
@@ -254,12 +249,10 @@ export function ChatExplorer() {
         )}
       </div>
 
-      {/* Prompt */}
       <div className="bg-slate-50 rounded-lg p-4 border">
         <p className="text-sm">{prompt}</p>
       </div>
 
-      {/* Papers grid */}
       <div className="grid gap-4 md:grid-cols-2">
         {loading ? (
           <>
@@ -282,7 +275,6 @@ export function ChatExplorer() {
         )}
       </div>
 
-      {/* User response input */}
       <div className="space-y-3">
         <Textarea
           placeholder="Share your thoughts... Which papers interest you? What aspects draw you in? What's missing?"

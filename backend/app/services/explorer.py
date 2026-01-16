@@ -1,9 +1,3 @@
-"""
-Research Path Explorer - Session management and LLM orchestration.
-
-Helps students narrow vague research interests to specific directions
-through guided paper exploration.
-"""
 import os
 import uuid
 import json
@@ -20,28 +14,24 @@ from app.services.embeddings import get_embedding
 from app.models import Paper, Faculty
 
 
-# In-memory session storage with thread-safe lock
 _sessions: dict[str, "ExploreSession"] = {}
 _sessions_lock = threading.Lock()
 
-# Session TTL: 1 hour
 SESSION_TTL = timedelta(hours=1)
 
 
 @dataclass
 class ExploreSession:
-    """Session state for exploration."""
     session_id: str
     initial_interest: str
     shown_paper_ids: list[int] = field(default_factory=list)
-    conversation: list[dict] = field(default_factory=list)  # [{role, content}]
+    conversation: list[dict] = field(default_factory=list)
     preferences: dict = field(default_factory=lambda: {"liked": [], "disliked": [], "curious": []})
     created_at: datetime = field(default_factory=datetime.now)
     rounds: int = 0
 
 
 def create_session(initial_interest: str) -> ExploreSession:
-    """Create a new exploration session."""
     session_id = str(uuid.uuid4())
     session = ExploreSession(
         session_id=session_id,
@@ -53,43 +43,33 @@ def create_session(initial_interest: str) -> ExploreSession:
 
 
 def get_session(session_id: str) -> Optional[ExploreSession]:
-    """Get an existing session. Returns None if expired or not found."""
     with _sessions_lock:
         session = _sessions.get(session_id)
         if session:
-            # Check if session has expired (TTL = 1 hour)
             if datetime.now() - session.created_at > SESSION_TTL:
-                # Session expired, remove it
                 _sessions.pop(session_id, None)
                 return None
         return session
 
 
 def delete_session(session_id: str) -> None:
-    """Delete a session."""
     with _sessions_lock:
         _sessions.pop(session_id, None)
 
 
 def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit: int = 4) -> list[Paper]:
-    """
-    Get diverse papers matching an interest.
-    Uses embedding similarity but tries to maximize diversity.
-    """
     query_embedding = get_embedding(interest)
 
-    # Build exclusion clause
     exclude_clause = ""
     params = {
         "embedding": str(query_embedding),
-        "limit": limit * 3  # Get more, then diversify
+        "limit": limit * 3
     }
 
     if exclude_ids:
         exclude_clause = "AND id != ALL(:exclude_ids)"
         params["exclude_ids"] = exclude_ids
 
-    # Get candidate papers by similarity
     results = db.execute(
         text(f"""
             SELECT id, title, abstract, year, venue, faculty_id,
@@ -108,7 +88,6 @@ def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit
     if not results:
         return []
 
-    # Simple diversity: take every Nth paper to spread out
     diverse_papers = []
     step = max(1, len(results) // limit)
     for i in range(0, len(results), step):
@@ -123,7 +102,6 @@ def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit
 
 
 def get_similar_papers(db: Session, query: str, exclude_ids: list[int], limit: int = 4) -> list[Paper]:
-    """Get papers similar to a refined query."""
     query_embedding = get_embedding(query)
 
     exclude_clause = ""
@@ -154,13 +132,8 @@ def get_similar_papers(db: Session, query: str, exclude_ids: list[int], limit: i
 
 
 def extract_preferences_and_refine(session: ExploreSession, user_response: str) -> dict:
-    """
-    Use LLM to extract preferences from user response and generate refined query.
-    Returns: {preferences: {liked, disliked, curious}, refined_query: str, is_converged: bool}
-    """
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    # Build conversation context
     conv_context = f"Initial interest: {session.initial_interest}\n"
     conv_context += f"Rounds so far: {session.rounds}\n"
     if session.preferences["liked"]:
@@ -199,10 +172,8 @@ Respond in this exact JSON format:
             messages=[{"role": "user", "content": prompt}]
         )
 
-        # Parse JSON from response
         result = json.loads(response.content[0].text)
     except (APIError, APIConnectionError, RateLimitError, APITimeoutError) as e:
-        # LLM API error - return fallback with user's raw response
         result = {
             "liked": [],
             "disliked": [],
@@ -212,7 +183,6 @@ Respond in this exact JSON format:
             "convergence_reason": f"API error: {str(e)}"
         }
     except json.JSONDecodeError:
-        # JSON parsing error - fallback to user response
         result = {
             "liked": [],
             "disliked": [],
@@ -226,13 +196,8 @@ Respond in this exact JSON format:
 
 
 def synthesize_direction(session: ExploreSession) -> dict:
-    """
-    Synthesize a research direction from the exploration conversation.
-    Returns: {title: str, description: str}
-    """
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    # Build full context
     context = f"Initial interest: {session.initial_interest}\n\n"
     context += "Conversation history:\n"
     for msg in session.conversation:
@@ -265,13 +230,11 @@ Respond in JSON format:
 
         result = json.loads(response.content[0].text)
     except (APIError, APIConnectionError, RateLimitError, APITimeoutError):
-        # LLM API error - return fallback based on session data
         result = {
             "title": "Research Direction",
             "description": f"Based on your interest in {session.initial_interest} and exploration of related topics."
         }
     except json.JSONDecodeError:
-        # JSON parsing error - return fallback
         result = {
             "title": "Research Direction",
             "description": f"Based on your interest in {session.initial_interest} and exploration of related topics."
@@ -281,10 +244,6 @@ Respond in JSON format:
 
 
 def match_faculty_to_direction(db: Session, direction_description: str, limit: int = 3) -> list[dict]:
-    """
-    Find faculty matching the synthesized research direction.
-    Returns list of {faculty, similarity, explanation}
-    """
     query_embedding = get_embedding(direction_description)
 
     results = db.execute(
@@ -304,12 +263,10 @@ def match_faculty_to_direction(db: Session, direction_description: str, limit: i
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     for row in results:
-        # Get faculty's top paper
         top_paper = db.query(Paper).filter(
             Paper.faculty_id == row.id
         ).order_by(Paper.citation_count.desc()).first()
 
-        # Generate brief explanation
         explanation_prompt = f"""In 1-2 sentences, explain why this faculty member matches a student interested in: "{direction_description}"
 
 Faculty: {row.name} at {row.affiliation}
@@ -324,7 +281,6 @@ Top paper: {top_paper.title if top_paper else 'N/A'}"""
             )
             explanation = explanation_response.content[0].text.strip()
         except (APIError, APIConnectionError, RateLimitError, APITimeoutError):
-            # LLM API error - fallback to basic explanation
             explanation = f"Research focus aligns with {', '.join(row.research_tags[:3] if row.research_tags else ['your interests'])}."
 
         matches.append({
@@ -346,7 +302,6 @@ Top paper: {top_paper.title if top_paper else 'N/A'}"""
 
 
 def generate_exploration_prompt(papers: list[Paper], round_num: int) -> str:
-    """Generate the prompt to show user with papers."""
     if round_num == 0:
         return "Here are some papers spanning different areas related to your interest. Which aspects resonate with you? What draws you to them or what's missing?"
     elif round_num < 3:

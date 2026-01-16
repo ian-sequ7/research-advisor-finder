@@ -13,7 +13,6 @@ interface DirectionSummaryProps {
 export function DirectionSummary({ result }: DirectionSummaryProps) {
   return (
     <div className="space-y-6">
-      {/* Direction Card */}
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -27,7 +26,6 @@ export function DirectionSummary({ result }: DirectionSummaryProps) {
         </CardContent>
       </Card>
 
-      {/* Faculty Matches */}
       <div>
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <User className="h-5 w-5" />
@@ -84,7 +82,6 @@ export function DirectionSummary({ result }: DirectionSummaryProps) {
 
                 <Separator />
 
-                {/* Explanation */}
                 <div className="bg-primary/5 rounded-lg p-3">
                   <div className="flex items-center gap-1 text-sm font-medium mb-1">
                     <Sparkles className="h-4 w-4" />
@@ -93,7 +90,6 @@ export function DirectionSummary({ result }: DirectionSummaryProps) {
                   <p className="text-sm text-muted-foreground">{match.explanation}</p>
                 </div>
 
-                {/* Key Paper */}
                 {match.key_paper && (
                   <div className="text-sm">
                     <div className="flex items-center gap-1 text-muted-foreground mb-1">

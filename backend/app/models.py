@@ -6,16 +6,8 @@ from pgvector.sqlalchemy import Vector
 
 from app.database import Base
 
-"""
-This is going to be the code to make the basic dbs for faculty n their papers
-
-- doing this by using Object relation mapping to define dbs instead or classic insertations
-"""
-
 class Faculty(Base):
-    
-    # setup for CS Faculty Member for the db
-    
+
     __tablename__ = "faculty"
 
     id = Column(Integer, primary_key=True, index =True)
@@ -41,10 +33,9 @@ class Faculty(Base):
     papers = relationship("Paper", back_populates="faculty")
 
 class Paper(Base):
-    # setup for a Research paper from a fac member
-    
+
     __tablename__ = "papers"
-    
+
     id = Column(Integer, primary_key=True, index=True)
 
     faculty_id = Column(Integer, ForeignKey("faculty.id"), index=True)
@@ -58,4 +49,3 @@ class Paper(Base):
     embedding = Column(Vector(1536), nullable=True)
 
     faculty = relationship("Faculty", back_populates="papers")
-

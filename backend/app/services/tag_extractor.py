@@ -3,26 +3,14 @@ from anthropic import Anthropic
 
 
 def extract_research_tags(papers: list) -> list[str]:
-    """
-    Use Claude to extract 3-5 research area tags from paper titles/abstracts.
-
-    Args:
-        papers: List of Paper objects (or dicts) with 'title' and 'abstract' fields
-
-    Returns:
-        List of normalized tags like ["Natural Language Processing", "Machine Learning", "Neural Networks"]
-    """
-    # Handle edge case: empty papers list
     if not papers:
         return []
 
     try:
         client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-        # Build paper summaries (truncate abstracts to 300 chars)
         paper_summaries = []
-        for paper in papers[:10]:  # Limit to 10 most recent papers to avoid token limits
-            # Handle both dict and object access patterns
+        for paper in papers[:10]:
             title = paper.get("title") if isinstance(paper, dict) else getattr(paper, "title", None)
             abstract = paper.get("abstract") if isinstance(paper, dict) else getattr(paper, "abstract", None)
 
@@ -38,7 +26,6 @@ def extract_research_tags(papers: list) -> list[str]:
 
             paper_summaries.append(summary)
 
-        # Handle edge case: no valid papers with titles
         if not paper_summaries:
             return []
 
@@ -63,24 +50,19 @@ Requirements:
             messages=[{"role": "user", "content": prompt}]
         )
 
-        # Parse and normalize tags
         raw_text = response.content[0].text.strip()
         tags = []
 
         for line in raw_text.split("\n"):
-            # Clean up the line
             tag = line.strip()
 
-            # Remove numbering (e.g., "1. ", "- ", etc.)
             tag = tag.lstrip("0123456789.-•*) \t")
             tag = tag.strip()
 
             if tag:
-                # Normalize to title case
                 tag = tag.title()
                 tags.append(tag)
 
-        # Deduplicate while preserving order
         seen = set()
         unique_tags = []
         for tag in tags:
@@ -92,6 +74,5 @@ Requirements:
         return unique_tags
 
     except Exception as e:
-        # Handle errors gracefully - log but don't crash
         print(f"Error extracting research tags: {e}")
         return []

@@ -7,7 +7,6 @@ DATABASE_URL = os.environ.get(
     "postgresql://postgres:postgres@localhost:5432/advisor_finder"
 )
 
-# Fix for Railway - they use postgres:// but SQLAlchemy needs postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 

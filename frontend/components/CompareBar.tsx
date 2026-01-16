@@ -33,7 +33,6 @@ export function CompareBar({
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
-          {/* Selected faculty chips */}
           <div className="flex flex-1 items-center gap-2 overflow-x-auto">
             <span className="shrink-0 text-sm font-medium text-muted-foreground">
               Selected ({selected.length}):
@@ -60,7 +59,6 @@ export function CompareBar({
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="flex shrink-0 items-center gap-2">
             <Button
               variant="outline"

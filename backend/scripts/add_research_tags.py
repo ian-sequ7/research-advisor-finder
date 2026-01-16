@@ -1,6 +1,3 @@
-"""
-One-time migration script to add research_tags column to faculty table.
-"""
 import os
 from sqlalchemy import create_engine, text
 
@@ -10,16 +7,13 @@ if not DATABASE_URL:
     print("ERROR: DATABASE_URL not set")
     exit(1)
 
-# SQLAlchemy requires postgresql:// not postgres://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 engine = create_engine(DATABASE_URL)
 
 def add_research_tags_column():
-    """Add research_tags column to faculty table if it doesn't exist."""
     with engine.connect() as conn:
-        # Check if column exists
         result = conn.execute(text("""
             SELECT column_name FROM information_schema.columns
             WHERE table_name = 'faculty' AND column_name = 'research_tags'
