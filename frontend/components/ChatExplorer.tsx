@@ -1,11 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { PaperCard } from '@/components/PaperCard';
 import { DirectionSummary } from '@/components/DirectionSummary';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   ExplorePaper,
   ExploreFinishResponse,
@@ -13,9 +23,38 @@ import {
   respondToExploration,
   finishExploration,
 } from '@/lib/api';
-import { Loader2, Send, RotateCcw, Users, ArrowRight } from 'lucide-react';
+import { Loader2, Send, RotateCcw, Users, ArrowRight, FileQuestion } from 'lucide-react';
 
 type ExploreState = 'start' | 'exploring' | 'ready' | 'finished';
+
+function PaperCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-8" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-5/6" />
+          <Skeleton className="h-3 w-4/5" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export function ChatExplorer() {
   const [state, setState] = useState<ExploreState>('start');
@@ -28,6 +67,12 @@ export function ChatExplorer() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ExploreFinishResponse | null>(null);
   const [round, setRound] = useState(0);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Scroll to top when state changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [state]);
 
   const handleStart = async () => {
     if (!initialInterest.trim()) return;
@@ -99,6 +144,15 @@ export function ChatExplorer() {
     setResult(null);
     setRound(0);
     setError(null);
+    setShowResetConfirm(false);
+  };
+
+  const handleResetClick = () => {
+    if (state === 'start') {
+      handleReset();
+    } else {
+      setShowResetConfirm(true);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -157,10 +211,31 @@ export function ChatExplorer() {
   if (state === 'finished' && result) {
     return (
       <div className="space-y-6">
-        <DirectionSummary result={result} />
+        {result.faculty_matches.length === 0 ? (
+          <div className="space-y-6">
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <h2 className="text-lg font-semibold">Your Research Direction</h2>
+              </CardHeader>
+              <CardContent>
+                <h3 className="text-xl font-bold mb-2">{result.direction_summary}</h3>
+                <p className="text-muted-foreground">{result.direction_description}</p>
+              </CardContent>
+            </Card>
+
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Users className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">
+                No faculty matches found for this direction.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <DirectionSummary result={result} />
+        )}
 
         <div className="flex justify-center">
-          <Button variant="outline" onClick={handleReset}>
+          <Button variant="outline" onClick={handleResetClick}>
             <RotateCcw className="mr-2 h-4 w-4" /> Start New Exploration
           </Button>
         </div>
@@ -186,9 +261,25 @@ export function ChatExplorer() {
 
       {/* Papers grid */}
       <div className="grid gap-4 md:grid-cols-2">
-        {papers.map((paper, index) => (
-          <PaperCard key={paper.id} paper={paper} index={index} />
-        ))}
+        {loading ? (
+          <>
+            <PaperCardSkeleton />
+            <PaperCardSkeleton />
+            <PaperCardSkeleton />
+            <PaperCardSkeleton />
+          </>
+        ) : papers.length === 0 ? (
+          <div className="col-span-2 flex flex-col items-center justify-center py-12 text-center">
+            <FileQuestion className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">
+              No papers found. Try describing your interests differently.
+            </p>
+          </div>
+        ) : (
+          papers.map((paper, index) => (
+            <PaperCard key={paper.id} paper={paper} index={index} />
+          ))
+        )}
       </div>
 
       {/* User response input */}
@@ -240,7 +331,7 @@ export function ChatExplorer() {
             </Button>
           )}
 
-          <Button variant="ghost" onClick={handleReset}>
+          <Button variant="ghost" onClick={handleResetClick}>
             <RotateCcw className="mr-2 h-4 w-4" /> Start Over
           </Button>
         </div>
@@ -249,6 +340,25 @@ export function ChatExplorer() {
           Tip: Press Cmd+Enter to submit
         </p>
       </div>
+
+      <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Start Over?</DialogTitle>
+            <DialogDescription>
+              This will discard your exploration progress. You&apos;ll need to start from the beginning.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowResetConfirm(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleReset}>
+              Start Over
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
