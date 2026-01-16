@@ -123,3 +123,87 @@ export async function uploadCV(params: CVUploadParams): Promise<CVUploadResponse
 
   return response.json();
 }
+
+// ============== Explore (Research Path Explorer) ==============
+
+export interface ExplorePaper {
+  id: number;
+  title: string;
+  abstract: string | null;
+  year: number | null;
+  venue: string | null;
+  faculty_name: string | null;
+}
+
+export interface ExploreStartResponse {
+  session_id: string;
+  papers: ExplorePaper[];
+  prompt: string;
+}
+
+export interface ExploreRespondResponse {
+  papers: ExplorePaper[];
+  prompt: string;
+  is_ready: boolean;
+}
+
+export interface FacultyMatch {
+  faculty: Faculty;
+  similarity: number;
+  explanation: string;
+  key_paper: string | null;
+}
+
+export interface ExploreFinishResponse {
+  direction_summary: string;
+  direction_description: string;
+  faculty_matches: FacultyMatch[];
+}
+
+export async function startExploration(initialInterest: string): Promise<ExploreStartResponse> {
+  const response = await fetch(`${API_URL}/api/explore/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initial_interest: initialInterest }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to start exploration");
+  }
+
+  return response.json();
+}
+
+export async function respondToExploration(
+  sessionId: string,
+  response: string
+): Promise<ExploreRespondResponse> {
+  const res = await fetch(`${API_URL}/api/explore/respond`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, response }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Failed to process response");
+  }
+
+  return res.json();
+}
+
+export async function finishExploration(sessionId: string): Promise<ExploreFinishResponse> {
+  const response = await fetch(`${API_URL}/api/explore/finish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to finish exploration");
+  }
+
+  return response.json();
+}
