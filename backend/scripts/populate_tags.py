@@ -6,9 +6,12 @@ Processes faculty without tags, commits after each to allow resumption.
 import os
 import sys
 import time
+from dotenv import load_dotenv
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+load_dotenv()
 
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
