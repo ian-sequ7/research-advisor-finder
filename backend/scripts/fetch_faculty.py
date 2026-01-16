@@ -1,10 +1,17 @@
+import os
 import requests
 import time
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from app.database import SessionLocal
 from app.models import Faculty, Paper
 
+load_dotenv()
+
 S2_API = "https://api.semanticscholar.org/graph/v1"
+S2_API_KEY = os.environ.get("SEMANTIC_SCHOLAR_API_KEY")
+
+HEADERS = {"x-api-key": S2_API_KEY} if S2_API_KEY else {}
 
 FACULTY_BY_SCHOOL = {
     "MIT": [
@@ -74,7 +81,7 @@ def search_author(name: str) -> dict | None:
     url = f"{S2_API}/author/search"
     params = {"query": name, "limit": 1}
     try:
-        resp = requests.get(url, params=params, timeout=10)
+        resp = requests.get(url, params=params, headers=HEADERS, timeout=10)
         resp.raise_for_status()
         data = resp.json()
         if data.get("data"):
@@ -90,7 +97,7 @@ def get_author_details(author_id: str) -> dict | None:
         "fields": "name,affiliations,homepage,hIndex,citationCount,paperCount,papers.title,papers.year,papers.abstract,papers.venue,papers.citationCount"
     }
     try:
-        resp = requests.get(url, params=params, timeout=10)
+        resp = requests.get(url, params=params, headers=HEADERS, timeout=10)
         resp.raise_for_status()
         return resp.json()
     except Exception as e:
