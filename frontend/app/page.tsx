@@ -9,7 +9,7 @@ import CVUpload from '@/components/CVUpload';
 import { ResultCard } from '@/components/ResultCard';
 import { ResultSkeleton } from '@/components/ResultSkeleton';
 import { Filters } from '@/components/Filters';
-import { Loader2, Search, GraduationCap, AlertCircle, BookOpen } from 'lucide-react';
+import { Loader2, Search, GraduationCap, AlertCircle, BookOpen, Compass } from 'lucide-react';
 import { CompareBar } from '@/components/CompareBar';
 import { CompareModal } from '@/components/CompareModal';
 
@@ -108,13 +108,22 @@ export default function Home() {
             <GraduationCap className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-semibold">Research Advisor Finder</h1>
           </div>
-          <Link
-            href="/resources"
-            className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
-          >
-            <BookOpen className="h-4 w-4" />
-            Resources
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/explore"
+              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+            >
+              <Compass className="h-4 w-4" />
+              Explore
+            </Link>
+            <Link
+              href="/resources"
+              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+            >
+              <BookOpen className="h-4 w-4" />
+              Resources
+            </Link>
+          </div>
         </div>
       </div>
 
