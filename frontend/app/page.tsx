@@ -161,7 +161,7 @@ export default function Home() {
                 Describe your research interests
               </h2>
               <Textarea
-                placeholder="I'm interested in mechanistic interpretability, neural network pruning, and understanding how large language models represent knowledge internally..."
+                placeholder="e.g., statistical learning theory, causal inference, reinforcement learning, convex optimization, Bayesian methods..."
                 className="min-h-[120px] mb-4"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
