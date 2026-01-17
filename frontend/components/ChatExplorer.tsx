@@ -175,7 +175,7 @@ export function ChatExplorer() {
         </div>
 
         <Input
-          placeholder="e.g., machine learning, natural language processing, computer vision..."
+          placeholder="e.g., machine learning, Bayesian statistics, causal inference, optimization..."
           value={initialInterest}
           onChange={(e) => setInitialInterest(e.target.value)}
           onKeyDown={handleKeyDown}
