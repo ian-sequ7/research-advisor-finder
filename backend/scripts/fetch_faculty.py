@@ -193,6 +193,18 @@ CS_FACULTY = {
         "Yisong Yue", "Katie Bouman", "Adam Wierman", "Anima Anandkumar", "Pietro Perona",
         "Thomas Vidick", "Joel Tropp", "Venkat Chandrasekaran", "Chris Umans", "Leonard Schulman",
         "Yaser Abu-Mostafa", "Babak Hassibi", "Michelle Effros", "Tracey Ho"
+    ],
+    "UCI CS": [
+        "Padhraic Smyth", "Alexander Ihler", "Sameer Singh", "Eric Mjolsness", "Pierre Baldi",
+        "Xiaohui Xie", "Stephan Mandt", "Erik Sudderth", "Rina Dechter", "Michael Goodrich",
+        "Dan Hirschberg", "David Eppstein", "Sandy Irani", "Vijay Vazirani", "Michael Franz",
+        "Gene Tsudik", "Athina Markopoulou", "Marco Levorato", "Nalini Venkatasubramanian"
+    ],
+    "UCSB CS": [
+        "William Wang", "Xifeng Yan", "Ambuj Singh", "Tao Yang", "Tevfik Bultan",
+        "Ben Hardekopf", "Giovanni Vigna", "Christopher Kruegel", "Tim Sherwood", "Fred Chong",
+        "Yuan Xie", "Yufei Ding", "Lei Li", "Shiyu Chang", "Yu-Xiang Wang",
+        "Arpit Gupta", "Trinabh Gupta", "Jonathan Balkind"
     ]
 }
 
@@ -307,6 +319,15 @@ STATS_FACULTY = {
         "Bani Mallick", "Mohsen Pourahmadi",
         "Suojin Wang", "Xianyang Zhang", "Matthias Katzfuss", "Yang Ni",
         "Rajarshi Guhaniyogi", "Huiyan Sang", "Scott Crawford", "Alan Dabney"
+    ],
+    "UCI Stats": [
+        "Hal Stern", "Wesley Johnson", "Michele Guindani", "Babak Shahbaba", "Daniel Gillen",
+        "Vladimir Minin", "Bin Nan", "Yaming Yu", "Zhaoxia Yu", "Annie Qu",
+        "Weining Shen", "Hernando Ombao"
+    ],
+    "UCSB Stats": [
+        "S. Rao Jammalamadaka", "John Hsu", "Wendy Meiring", "Andrew Carter", "Sang-Yun Oh",
+        "Michael Ludkovski", "Alexander Petersen", "Yuedong Wang", "Noel Cressie"
     ]
 }
 
@@ -442,6 +463,10 @@ MATH_FACULTY = {
     "CMU Tepper": [
         "R. Ravi", "Fatma Kılınç-Karzan", "Javier Peña", "Willem-Jan Van Hoeve",
         "Michael Trick", "Karan Singh", "Andrew Li"
+    ],
+    "UCSB Applied Math": [
+        "Bjorn Birnir", "Paul Atzberger", "Hector Ceniceros", "Carlos Garcia-Cervera",
+        "Thomas Sideris", "Xu Yang", "Jean-Pierre Fouque", "Tomoyuki Ichiba"
     ]
 }
 
