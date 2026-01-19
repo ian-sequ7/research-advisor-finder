@@ -4,6 +4,12 @@ from sqlalchemy.orm import Session
 from app.models import Paper
 from app.schemas import SearchResult
 
+# Search configuration constants
+RRF_K_CONSTANT = 60  # Standard constant for Reciprocal Rank Fusion
+FULLTEXT_SEARCH_LIMIT = 50  # Default limit for full-text search results
+VECTOR_SEARCH_LIMIT = 50  # Default limit for vector similarity search results
+MAX_PAPERS_PER_FACULTY = 5  # Maximum number of top papers to include per faculty member
+
 
 def search_faculty_fulltext(
     db: Session,
@@ -99,12 +105,12 @@ def search_faculty_by_embedding(
         .all()
     )
 
-    # Group papers by faculty_id, keeping top 5 per faculty
+    # Group papers by faculty_id, keeping top papers per faculty
     papers_by_faculty = {}
     for paper in papers_query:
         if paper.faculty_id not in papers_by_faculty:
             papers_by_faculty[paper.faculty_id] = []
-        if len(papers_by_faculty[paper.faculty_id]) < 5:
+        if len(papers_by_faculty[paper.faculty_id]) < MAX_PAPERS_PER_FACULTY:
             papers_by_faculty[paper.faculty_id].append(paper)
 
     # Build response
@@ -142,7 +148,7 @@ def search_faculty_hybrid(
     limit: int = 10,
     min_h_index: int = 0,
     universities: list[str] | None = None,
-    k: int = 60
+    k: int = RRF_K_CONSTANT
 ) -> list[SearchResult]:
     """
     Hybrid search combining BM25 full-text search with vector semantic search using RRF.
@@ -155,7 +161,7 @@ def search_faculty_hybrid(
     params = {
         "embedding": str(embedding),
         "min_h": min_h_index,
-        "vector_limit": 50
+        "vector_limit": VECTOR_SEARCH_LIMIT
     }
 
     if universities:
@@ -182,7 +188,7 @@ def search_faculty_hybrid(
     fulltext_results = search_faculty_fulltext(
         db=db,
         query=query,
-        limit=50,
+        limit=FULLTEXT_SEARCH_LIMIT,
         min_h_index=min_h_index,
         universities=universities
     )
@@ -233,12 +239,12 @@ def search_faculty_hybrid(
         .all()
     )
 
-    # Group papers by faculty_id, keeping top 5 per faculty
+    # Group papers by faculty_id, keeping top papers per faculty
     papers_by_faculty = {}
     for paper in papers_query:
         if paper.faculty_id not in papers_by_faculty:
             papers_by_faculty[paper.faculty_id] = []
-        if len(papers_by_faculty[paper.faculty_id]) < 5:
+        if len(papers_by_faculty[paper.faculty_id]) < MAX_PAPERS_PER_FACULTY:
             papers_by_faculty[paper.faculty_id].append(paper)
 
     # Build response maintaining RRF rank order
