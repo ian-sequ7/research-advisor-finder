@@ -73,7 +73,7 @@ export function Filters({
                   setUniversities([...universities, uni]);
                 }
               }}
-              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+              className={`px-3 py-1 text-sm rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                 universities.includes(uni)
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-background hover:bg-muted border-input"
