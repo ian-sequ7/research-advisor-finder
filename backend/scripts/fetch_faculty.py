@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from economics_faculty import ECONOMICS_FACULTY
 from biostat_faculty import BIOSTAT_FACULTY
 from ds_expansion_faculty import DS_EXPANSION_FACULTY
+from ee_faculty import EE_FACULTY
 
 load_dotenv()
 
@@ -795,6 +796,7 @@ CATEGORY_MAP = {
     "economics": ECONOMICS_FACULTY,
     "biostat": BIOSTAT_FACULTY,
     "ds_expansion": DS_EXPANSION_FACULTY,
+    "ee": EE_FACULTY,
 }
 
 # Combine all faculty into one dictionary for the fetch script
@@ -809,7 +811,8 @@ FACULTY_BY_SCHOOL.update(CS_GENERAL_FACULTY)
 FACULTY_BY_SCHOOL.update(ECONOMICS_FACULTY)
 FACULTY_BY_SCHOOL.update(BIOSTAT_FACULTY)
 FACULTY_BY_SCHOOL.update(DS_EXPANSION_FACULTY)
-# INFORMATICS_FACULTY removed - replaced with Economics/Econometrics/Biostat expansion
+FACULTY_BY_SCHOOL.update(EE_FACULTY)
+# INFORMATICS_FACULTY removed - replaced with Economics/Econometrics/Biostat/EE expansion
 
 
 def search_author(name: str) -> dict | None:
