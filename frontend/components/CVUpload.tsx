@@ -12,6 +12,7 @@ interface CVUploadProps {
 export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -30,24 +31,47 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
     setDragActive(false);
 
     const file = e.dataTransfer.files?.[0];
-    if (file && isValidFile(file)) {
-      setSelectedFile(file);
+    if (file) {
+      const validation = validateFile(file);
+      if (validation.isValid) {
+        setSelectedFile(file);
+        setValidationError(null);
+      } else {
+        setValidationError(validation.error);
+      }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && isValidFile(file)) {
-      setSelectedFile(file);
+    if (file) {
+      const validation = validateFile(file);
+      if (validation.isValid) {
+        setSelectedFile(file);
+        setValidationError(null);
+      } else {
+        setValidationError(validation.error);
+      }
     }
   };
 
-  const isValidFile = (file: File): boolean => {
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+  const validateFile = (file: File): { isValid: boolean; error: string } => {
     const validTypes = [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
-    return validTypes.includes(file.type);
+
+    if (!validTypes.includes(file.type)) {
+      return { isValid: false, error: 'Please upload a PDF or DOCX file.' };
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return { isValid: false, error: 'File size must be less than 10MB.' };
+    }
+
+    return { isValid: true, error: '' };
   };
 
   const handleSubmit = () => {
@@ -58,6 +82,7 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
 
   const clearFile = () => {
     setSelectedFile(null);
+    setValidationError(null);
     if (inputRef.current) {
       inputRef.current.value = '';
     }
@@ -110,8 +135,8 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
         )}
       </div>
 
-      {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
+      {(error || validationError) && (
+        <p className="mt-2 text-sm text-red-600">{error || validationError}</p>
       )}
 
       {selectedFile && (
