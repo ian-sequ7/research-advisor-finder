@@ -15,7 +15,7 @@ class Faculty(Base):
     semantic_scholar_id = Column(String(50), unique=True, index=True)
 
     name = Column(String(255), nullable=False)
-    affiliation = Column(String(500))
+    affiliation = Column(String(500), index=True)
     homepage = Column(String(500))
 
     h_index = Column(Integer)
