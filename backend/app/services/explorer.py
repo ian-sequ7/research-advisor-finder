@@ -13,6 +13,13 @@ from sqlalchemy import text
 from app.services.embeddings import get_embedding
 from app.models import Paper, Faculty
 
+# Exploration configuration constants
+DEFAULT_PAPERS_PER_ROUND = 4  # Default number of papers to show per exploration round
+PAPER_DIVERSITY_MULTIPLIER = 3  # Multiplier for fetching diverse paper candidates
+DEFAULT_FACULTY_MATCHES = 3  # Default number of faculty matches to return
+PREFERENCE_EXTRACTION_MAX_TOKENS = 500  # Max tokens for LLM preference extraction
+DIRECTION_SYNTHESIS_MAX_TOKENS = 300  # Max tokens for LLM direction synthesis
+FACULTY_EXPLANATION_MAX_TOKENS = 100  # Max tokens for LLM faculty explanation
 
 _sessions: dict[str, "ExploreSession"] = {}
 _sessions_lock = threading.Lock()
@@ -57,13 +64,13 @@ def delete_session(session_id: str) -> None:
         _sessions.pop(session_id, None)
 
 
-def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit: int = 4) -> list[Paper]:
+def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit: int = DEFAULT_PAPERS_PER_ROUND) -> list[Paper]:
     query_embedding = get_embedding(interest)
 
     exclude_clause = ""
     params = {
         "embedding": str(query_embedding),
-        "limit": limit * 3
+        "limit": limit * PAPER_DIVERSITY_MULTIPLIER
     }
 
     if exclude_ids:
@@ -101,7 +108,7 @@ def get_diverse_papers(db: Session, interest: str, exclude_ids: list[int], limit
     return diverse_papers
 
 
-def get_similar_papers(db: Session, query: str, exclude_ids: list[int], limit: int = 4) -> list[Paper]:
+def get_similar_papers(db: Session, query: str, exclude_ids: list[int], limit: int = DEFAULT_PAPERS_PER_ROUND) -> list[Paper]:
     query_embedding = get_embedding(query)
 
     exclude_clause = ""
@@ -168,7 +175,7 @@ Respond in this exact JSON format:
     try:
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=500,
+            max_tokens=PREFERENCE_EXTRACTION_MAX_TOKENS,
             messages=[{"role": "user", "content": prompt}]
         )
 
@@ -224,7 +231,7 @@ Respond in JSON format:
     try:
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=300,
+            max_tokens=DIRECTION_SYNTHESIS_MAX_TOKENS,
             messages=[{"role": "user", "content": prompt}]
         )
 
@@ -243,7 +250,7 @@ Respond in JSON format:
     return result
 
 
-def match_faculty_to_direction(db: Session, direction_description: str, limit: int = 3) -> list[dict]:
+def match_faculty_to_direction(db: Session, direction_description: str, limit: int = DEFAULT_FACULTY_MATCHES) -> list[dict]:
     query_embedding = get_embedding(direction_description)
 
     results = db.execute(
@@ -276,7 +283,7 @@ Top paper: {top_paper.title if top_paper else 'N/A'}"""
         try:
             explanation_response = client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=100,
+                max_tokens=FACULTY_EXPLANATION_MAX_TOKENS,
                 messages=[{"role": "user", "content": explanation_prompt}]
             )
             explanation = explanation_response.content[0].text.strip()
