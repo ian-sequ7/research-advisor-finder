@@ -31,8 +31,8 @@ export function CompareBar({
         "animate-in slide-in-from-bottom"
       )}
     >
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className="container mx-auto px-4 py-3 sm:py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex flex-1 items-center gap-2 overflow-x-auto">
             <span className="shrink-0 text-sm font-medium text-muted-foreground">
               Selected ({selected.length}):
@@ -44,7 +44,7 @@ export function CompareBar({
                   variant="secondary"
                   className="shrink-0 gap-1.5 pl-3 pr-2"
                 >
-                  <span className="max-w-[200px] truncate">
+                  <span className="max-w-[120px] sm:max-w-[200px] truncate">
                     {result.faculty.name}
                   </span>
                   <button
@@ -59,7 +59,7 @@ export function CompareBar({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -76,7 +76,7 @@ export function CompareBar({
               aria-label={`Compare ${selected.length} faculty members`}
             >
               <GitCompare className="h-4 w-4" />
-              Compare ({selected.length})
+              <span className="hidden xs:inline">Compare</span> ({selected.length})
             </Button>
           </div>
         </div>
