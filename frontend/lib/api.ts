@@ -58,7 +58,8 @@ export async function searchFaculty(
   });
 
   if (!response.ok) {
-    throw new Error("Search failed");
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || `Search failed (${response.status})`);
   }
 
   return response.json();
@@ -78,7 +79,8 @@ export async function getExplanation(
   });
 
   if (!response.ok) {
-    throw new Error("Explanation failed");
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || `Explanation failed (${response.status})`);
   }
 
   return response.json();
