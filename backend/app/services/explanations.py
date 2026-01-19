@@ -2,6 +2,9 @@ import os
 import re
 from anthropic import Anthropic
 
+# Explanation generation constants
+EXPLANATION_MAX_TOKENS = 400  # Max tokens for generating faculty-student match explanations
+
 
 def generate_explanation(interests: str, faculty_name: str, papers: list[str]) -> dict:
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
@@ -21,7 +24,7 @@ Also provide a brief breakdown:
 
     response = client.messages.create(
         model="claude-sonnet-4-20250514",
-        max_tokens=400,
+        max_tokens=EXPLANATION_MAX_TOKENS,
         messages=[{"role": "user", "content": prompt}]
     )
 
