@@ -15,6 +15,10 @@ from economics_faculty import ECONOMICS_FACULTY
 from biostat_faculty import BIOSTAT_FACULTY
 from ds_expansion_faculty import DS_EXPANSION_FACULTY
 from ee_faculty import EE_FACULTY
+from materials_faculty import MATERIALS_FACULTY
+from compbio_faculty import COMPBIO_FACULTY
+from bme_faculty import BME_FACULTY
+from chemeng_faculty import CHEMENG_FACULTY
 
 load_dotenv()
 
@@ -797,6 +801,10 @@ CATEGORY_MAP = {
     "biostat": BIOSTAT_FACULTY,
     "ds_expansion": DS_EXPANSION_FACULTY,
     "ee": EE_FACULTY,
+    "materials": MATERIALS_FACULTY,
+    "compbio": COMPBIO_FACULTY,
+    "bme": BME_FACULTY,
+    "chemeng": CHEMENG_FACULTY,
 }
 
 # Combine all faculty into one dictionary for the fetch script
@@ -812,7 +820,11 @@ FACULTY_BY_SCHOOL.update(ECONOMICS_FACULTY)
 FACULTY_BY_SCHOOL.update(BIOSTAT_FACULTY)
 FACULTY_BY_SCHOOL.update(DS_EXPANSION_FACULTY)
 FACULTY_BY_SCHOOL.update(EE_FACULTY)
-# INFORMATICS_FACULTY removed - replaced with Economics/Econometrics/Biostat/EE expansion
+FACULTY_BY_SCHOOL.update(MATERIALS_FACULTY)
+FACULTY_BY_SCHOOL.update(COMPBIO_FACULTY)
+FACULTY_BY_SCHOOL.update(BME_FACULTY)
+FACULTY_BY_SCHOOL.update(CHEMENG_FACULTY)
+# Expansion: Economics, Biostat, EE, Materials, CompBio, BME, ChemEng
 
 
 def search_author(name: str) -> dict | None:
