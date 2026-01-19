@@ -22,7 +22,7 @@ export default function Home() {
   const [searched, setSearched] = useState(false);
 
   const [minHIndex, setMinHIndex] = useState(0);
-  const [resultCount, setResultCount] = useState(10);
+  const [resultCount, setResultCount] = useState(5);
   const [universities, setUniversities] = useState<string[]>([]);
 
   const [searchMode, setSearchMode] = useState<'text' | 'cv'>('text');
