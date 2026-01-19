@@ -5,16 +5,20 @@ from app.database import get_db
 from app.schemas import ExplanationRequest, ExplanationResponse, SearchRequest, SearchResult
 from app.services.embeddings import get_embedding
 from app.services.explanations import generate_explanation
-from app.services.search import search_faculty_by_embedding
+from app.services.query_expansion import expand_query
+from app.services.search import search_faculty_hybrid
 from app.models import Faculty, Paper
 
 router = APIRouter()
 
 @router.post("/", response_model=list[SearchResult])
 def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
-    query_embedding = get_embedding(request.query)
-    return search_faculty_by_embedding(
+    # Expand query to include full terms for common abbreviations
+    expanded_query = expand_query(request.query)
+    query_embedding = get_embedding(expanded_query)
+    return search_faculty_hybrid(
         db=db,
+        query=expanded_query,
         embedding=query_embedding,
         limit=request.limit,
         min_h_index=request.min_h_index,
