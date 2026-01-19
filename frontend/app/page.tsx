@@ -14,6 +14,15 @@ import { CompareBar } from '@/components/CompareBar';
 import { CompareModal } from '@/components/CompareModal';
 import { Header } from '@/components/Header';
 
+const exampleQueries = [
+  "machine learning for healthcare diagnostics",
+  "natural language processing and large language models",
+  "computer vision for autonomous vehicles",
+  "reinforcement learning and robotics",
+  "statistical inference and causal discovery",
+  "quantum computing algorithms",
+];
+
 export default function Home() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -103,9 +112,12 @@ export default function Home() {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4" role="tablist" aria-label="Search method">
             <button
               onClick={() => setSearchMode('text')}
+              role="tab"
+              aria-selected={searchMode === 'text'}
+              aria-controls="text-search-panel"
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 searchMode === 'text'
                   ? 'bg-primary text-primary-foreground'
@@ -116,6 +128,9 @@ export default function Home() {
             </button>
             <button
               onClick={() => setSearchMode('cv')}
+              role="tab"
+              aria-selected={searchMode === 'cv'}
+              aria-controls="cv-upload-panel"
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 searchMode === 'cv'
                   ? 'bg-primary text-primary-foreground'
@@ -127,7 +142,7 @@ export default function Home() {
           </div>
 
           {searchMode === 'cv' ? (
-            <>
+            <div id="cv-upload-panel" role="tabpanel" aria-labelledby="cv-tab">
               <h2 className="text-lg font-medium mb-4">
                 Upload your CV/Resume
               </h2>
@@ -154,9 +169,9 @@ export default function Home() {
                   setUniversities={setUniversities}
                 />
               </div>
-            </>
+            </div>
           ) : (
-            <>
+            <div id="text-search-panel" role="tabpanel" aria-labelledby="text-tab">
               <h2 className="text-lg font-medium mb-4">
                 Describe your research interests
               </h2>
@@ -167,6 +182,23 @@ export default function Home() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
+
+              {!query.trim() && (
+                <div className="mt-2 mb-4">
+                  <p className="text-xs text-muted-foreground mb-2">Try an example:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {exampleQueries.map((example) => (
+                      <button
+                        key={example}
+                        onClick={() => setQuery(example)}
+                        className="text-xs px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                      >
+                        {example}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="mb-4">
                 <Filters
@@ -195,7 +227,7 @@ export default function Home() {
                   ⌘ + Enter to search
                 </span>
               </div>
-            </>
+            </div>
           )}
         </div>
 
@@ -236,9 +268,13 @@ export default function Home() {
         )}
 
         {!loading && searched && results.length === 0 && !error && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No faculty found matching your criteria. Try adjusting your filters or search terms.
+          <div className="text-center py-12 space-y-3">
+            <Search className="h-12 w-12 mx-auto text-muted-foreground/50" />
+            <p className="text-muted-foreground font-medium">
+              No faculty found matching your criteria
+            </p>
+            <p className="text-sm text-muted-foreground/80">
+              Try lowering the minimum h-index, broadening your search terms, or selecting different universities.
             </p>
           </div>
         )}
