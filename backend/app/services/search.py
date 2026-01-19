@@ -37,13 +37,9 @@ def search_faculty_fulltext(
 
     results = db.execute(
         text(f"""
-            SELECT id, ts_rank(
-                to_tsvector('english', name || ' ' || COALESCE(research_sumary, '') || ' ' || COALESCE(array_to_string(research_tags, ' '), '')),
-                plainto_tsquery('english', :query)
-            ) as rank
+            SELECT id, ts_rank(search_vector, plainto_tsquery('english', :query)) as rank
             FROM faculty
-            WHERE to_tsvector('english', name || ' ' || COALESCE(research_sumary, '') || ' ' || COALESCE(array_to_string(research_tags, ' '), ''))
-                  @@ plainto_tsquery('english', :query)
+            WHERE search_vector @@ plainto_tsquery('english', :query)
               AND {where_sql}
             ORDER BY rank DESC
             LIMIT :limit
