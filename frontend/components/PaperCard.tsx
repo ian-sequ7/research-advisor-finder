@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExplorePaper } from '@/lib/api';
+import { truncate } from '@/lib/utils';
 import { ChevronDown, ChevronUp, User, Calendar, BookOpen } from 'lucide-react';
 
 interface PaperCardProps {
@@ -15,9 +16,7 @@ interface PaperCardProps {
 export function PaperCard({ paper, index }: PaperCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const truncatedAbstract = paper.abstract && paper.abstract.length > 200
-    ? paper.abstract.slice(0, 200) + '...'
-    : paper.abstract;
+  const truncatedAbstract = paper.abstract ? truncate(paper.abstract, 200) : null;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -48,7 +47,7 @@ export function PaperCard({ paper, index }: PaperCardProps) {
               {paper.venue && (
                 <span className="flex items-center gap-1">
                   <BookOpen className="h-3 w-3" />
-                  {paper.venue.length > 30 ? paper.venue.slice(0, 30) + '...' : paper.venue}
+                  {truncate(paper.venue, 30)}
                 </span>
               )}
             </div>
@@ -67,6 +66,8 @@ export function PaperCard({ paper, index }: PaperCardProps) {
               size="sm"
               className="mt-2 h-6 px-2 text-xs"
               onClick={() => setExpanded(!expanded)}
+              aria-expanded={expanded}
+              aria-label={expanded ? "Show less of abstract" : "Read full abstract"}
             >
               {expanded ? (
                 <>
