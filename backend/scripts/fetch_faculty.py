@@ -1,10 +1,19 @@
 import os
+import sys
+import argparse
 import requests
 import time
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from app.database import SessionLocal
 from app.models import Faculty, Paper
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from economics_faculty import ECONOMICS_FACULTY
+from biostat_faculty import BIOSTAT_FACULTY
+from ds_expansion_faculty import DS_EXPANSION_FACULTY
 
 load_dotenv()
 
@@ -772,6 +781,22 @@ INFORMATICS_FACULTY = {
     ]
 }
 
+# =============================================================================
+# CATEGORY MAP - For selective fetching with --only flag
+# =============================================================================
+CATEGORY_MAP = {
+    "cs": CS_FACULTY,
+    "stats": STATS_FACULTY,
+    "ds": DS_FACULTY,
+    "math": MATH_FACULTY,
+    "math_general": MATH_GENERAL_FACULTY,
+    "physics": PHYSICS_FACULTY,
+    "cs_general": CS_GENERAL_FACULTY,
+    "economics": ECONOMICS_FACULTY,
+    "biostat": BIOSTAT_FACULTY,
+    "ds_expansion": DS_EXPANSION_FACULTY,
+}
+
 # Combine all faculty into one dictionary for the fetch script
 FACULTY_BY_SCHOOL = {}
 FACULTY_BY_SCHOOL.update(CS_FACULTY)
@@ -781,7 +806,10 @@ FACULTY_BY_SCHOOL.update(MATH_FACULTY)
 FACULTY_BY_SCHOOL.update(MATH_GENERAL_FACULTY)
 FACULTY_BY_SCHOOL.update(PHYSICS_FACULTY)
 FACULTY_BY_SCHOOL.update(CS_GENERAL_FACULTY)
-# INFORMATICS_FACULTY removed - replaced with Economics/Econometrics expansion
+FACULTY_BY_SCHOOL.update(ECONOMICS_FACULTY)
+FACULTY_BY_SCHOOL.update(BIOSTAT_FACULTY)
+FACULTY_BY_SCHOOL.update(DS_EXPANSION_FACULTY)
+# INFORMATICS_FACULTY removed - replaced with Economics/Econometrics/Biostat expansion
 
 
 def search_author(name: str) -> dict | None:
@@ -853,15 +881,41 @@ def save_faculty(db: Session, author: dict, school: str) -> Faculty | None:
     return faculty
 
 
-def fetch_all_faculty():
+def fetch_all_faculty(categories: list[str] | None = None):
+    """
+    Fetch faculty from Semantic Scholar API.
+
+    Args:
+        categories: Optional list of category names to fetch (e.g., ['economics', 'biostat']).
+                   If None, fetches all categories in FACULTY_BY_SCHOOL.
+    """
+    # Build the faculty dict based on categories filter
+    if categories:
+        faculty_to_fetch = {}
+        for cat in categories:
+            if cat not in CATEGORY_MAP:
+                print(f"Warning: Unknown category '{cat}'. Available: {', '.join(CATEGORY_MAP.keys())}")
+                continue
+            faculty_to_fetch.update(CATEGORY_MAP[cat])
+        if not faculty_to_fetch:
+            print("No valid categories specified. Exiting.")
+            return
+    else:
+        faculty_to_fetch = FACULTY_BY_SCHOOL
+
     db = SessionLocal()
-    total_count = sum(len(f) for f in FACULTY_BY_SCHOOL.values())
+    total_count = sum(len(f) for f in faculty_to_fetch.values())
     processed = 0
     saved = 0
+    skipped = 0
     failed = 0
 
+    print(f"\nFetching {total_count} faculty from {len(faculty_to_fetch)} schools/programs")
+    if categories:
+        print(f"Categories: {', '.join(categories)}")
+
     try:
-        for school, faculty_list in FACULTY_BY_SCHOOL.items():
+        for school, faculty_list in faculty_to_fetch.items():
             print(f"\nProcessing: {school} ({len(faculty_list)} faculty)")
 
             for name in faculty_list:
@@ -883,15 +937,77 @@ def fetch_all_faculty():
 
                 result = save_faculty(db, author, school)
                 if result:
-                    saved += 1
+                    # Check if it was skipped (already exists)
+                    existing = db.query(Faculty).filter(
+                        Faculty.semantic_scholar_id == author["authorId"]
+                    ).first()
+                    if existing and existing.id != result.id:
+                        skipped += 1
+                    else:
+                        saved += 1
 
                 time.sleep(3)
 
-        print(f"\nDONE! Processed: {processed}, Saved: {saved}, Failed: {failed}")
+        print(f"\nDONE! Processed: {processed}, Saved: {saved}, Skipped (existing): {skipped}, Failed: {failed}")
 
     finally:
         db.close()
 
 
+def main():
+    parser = argparse.ArgumentParser(
+        description="Fetch faculty data from Semantic Scholar API",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""
+Available categories:
+  {', '.join(CATEGORY_MAP.keys())}
+
+Examples:
+  # Fetch only economics and biostat faculty
+  python -m scripts.fetch_faculty --only economics,biostat
+
+  # Fetch new expansion categories
+  python -m scripts.fetch_faculty --only economics,biostat,ds_expansion
+
+  # List all categories and faculty counts
+  python -m scripts.fetch_faculty --list
+
+  # Fetch all faculty (default behavior)
+  python -m scripts.fetch_faculty
+"""
+    )
+    parser.add_argument(
+        "--only",
+        type=str,
+        help="Comma-separated list of categories to fetch (e.g., 'economics,biostat,ds_expansion')"
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="List all available categories with faculty counts"
+    )
+
+    args = parser.parse_args()
+
+    if args.list:
+        print("\nAvailable categories and faculty counts:")
+        print("=" * 50)
+        total = 0
+        for cat, faculty_dict in CATEGORY_MAP.items():
+            count = sum(len(f) for f in faculty_dict.values())
+            schools = len(faculty_dict)
+            total += count
+            print(f"  {cat:15} {count:4} faculty across {schools:2} schools")
+        print("=" * 50)
+        print(f"  {'TOTAL':15} {total:4} faculty")
+        return
+
+    categories = None
+    if args.only:
+        categories = [c.strip() for c in args.only.split(",")]
+
+    fetch_all_faculty(categories)
+
+
 if __name__ == "__main__":
-    fetch_all_faculty()
+    main()
