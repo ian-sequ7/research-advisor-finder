@@ -19,12 +19,21 @@ from app.services.explorer import (
 router = APIRouter()
 
 
-def _paper_to_response(paper: Paper, db: Session) -> ExplorePaper:
-    faculty_name = None
-    if paper.faculty_id:
-        faculty = db.query(Faculty).filter(Faculty.id == paper.faculty_id).first()
-        if faculty:
-            faculty_name = faculty.name
+def _get_faculty_names(papers: list[Paper], db: Session) -> dict[int, str]:
+    """Batch fetch faculty names for a list of papers to avoid N+1 queries."""
+    faculty_ids = [p.faculty_id for p in papers if p.faculty_id]
+    if not faculty_ids:
+        return {}
+
+    faculty_list = db.query(Faculty.id, Faculty.name).filter(
+        Faculty.id.in_(faculty_ids)
+    ).all()
+
+    return {f.id: f.name for f in faculty_list}
+
+
+def _paper_to_response(paper: Paper, faculty_names: dict[int, str]) -> ExplorePaper:
+    faculty_name = faculty_names.get(paper.faculty_id) if paper.faculty_id else None
 
     return ExplorePaper(
         id=paper.id,
@@ -62,9 +71,10 @@ def start_exploration(request: ExploreStartRequest, db: Session = Depends(get_db
 
         prompt = generate_exploration_prompt(papers, round_num=0)
 
+        faculty_names = _get_faculty_names(papers, db)
         return ExploreStartResponse(
             session_id=session.session_id,
-            papers=[_paper_to_response(p, db) for p in papers],
+            papers=[_paper_to_response(p, faculty_names) for p in papers],
             prompt=prompt
         )
     except HTTPException:
@@ -117,8 +127,9 @@ def respond_to_exploration(request: ExploreRespondRequest, db: Session = Depends
         if is_ready:
             prompt = "It looks like you're developing a clear research direction! Would you like to see faculty who work in this area, or continue exploring?"
 
+        faculty_names = _get_faculty_names(papers, db)
         return ExploreRespondResponse(
-            papers=[_paper_to_response(p, db) for p in papers],
+            papers=[_paper_to_response(p, faculty_names) for p in papers],
             prompt=prompt,
             is_ready=is_ready
         )
