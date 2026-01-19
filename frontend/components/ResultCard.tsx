@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { SearchResult, getExplanation, ExplanationBreakdown } from '@/lib/api';
 import { ResearchTags } from '@/components/ResearchTags';
 import { getMatchColor, getFacultyBadge } from '@/lib/faculty-utils';
+import { truncate } from '@/lib/utils';
 import { ExternalLink, Loader2, Sparkles, FileText, Plus, Check } from 'lucide-react';
 
 interface ResultCardProps {
@@ -69,7 +70,7 @@ export function ResultCard({ result, rank, interests, onCompareToggle, isInCompa
   const facultyBadge = getFacultyBadge(faculty.h_index);
 
   return (
-    <Card>
+    <Card className="transition-shadow hover:shadow-md">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div>
@@ -125,7 +126,7 @@ export function ResultCard({ result, rank, interests, onCompareToggle, isInCompa
                 <li key={paper.id} className="text-sm text-muted-foreground flex items-start gap-1">
                   <span className="mt-0.5">•</span>
                   <span className="flex-1">
-                    {paper.title.length > 80 ? `${paper.title.slice(0, 80)}...` : paper.title}
+                    {truncate(paper.title, 80)}
                     {paper.year && ` (${paper.year})`}
                     {paper.citation_count !== null && paper.citation_count > 0 && (
                       <Badge variant="outline" className="ml-2 text-xs py-0 h-5">
