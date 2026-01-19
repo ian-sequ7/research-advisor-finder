@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Migration script to add GIN index for full-text search on faculty table.
-This improves performance of PostgreSQL full-text search queries.
+Migration script to add full-text search support on faculty table.
+Adds a tsvector column and GIN index for fast text search.
 """
 
 import sys
@@ -14,45 +14,107 @@ from sqlalchemy import text
 from app.database import engine
 
 
-def add_fulltext_index():
+def add_fulltext_search():
     """
-    Create GIN index for full-text search on faculty table.
-    Combines name, research_summary, and research_tags fields.
+    Add full-text search support to faculty table:
+    1. Add search_vector column (tsvector)
+    2. Populate it with existing data
+    3. Create GIN index on the column
+    4. Create trigger to keep it updated
     """
     with engine.connect() as conn:
+        # Check if column already exists
+        result = conn.execute(text("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'faculty'
+            AND column_name = 'search_vector'
+        """))
+
+        if result.fetchone():
+            print("✓ Column 'search_vector' already exists")
+        else:
+            print("Adding search_vector column...")
+            conn.execute(text("""
+                ALTER TABLE faculty
+                ADD COLUMN search_vector tsvector
+            """))
+            print("✓ Added search_vector column")
+
+        # Populate the column with existing data
+        print("Populating search_vector with existing data...")
+        conn.execute(text("""
+            UPDATE faculty
+            SET search_vector = to_tsvector('english',
+                COALESCE(name, '') || ' ' ||
+                COALESCE(research_sumary, '') || ' ' ||
+                COALESCE(array_to_string(research_tags, ' '), '')
+            )
+            WHERE search_vector IS NULL
+        """))
+        print("✓ Populated search_vector")
+
         # Check if index already exists
         result = conn.execute(text("""
             SELECT indexname
             FROM pg_indexes
             WHERE tablename = 'faculty'
-            AND indexname = 'faculty_fulltext_idx'
+            AND indexname = 'faculty_search_vector_idx'
         """))
 
         if result.fetchone():
-            print("✓ Index 'faculty_fulltext_idx' already exists, skipping creation")
-            return
+            print("✓ Index 'faculty_search_vector_idx' already exists")
+        else:
+            print("Creating GIN index...")
+            conn.execute(text("""
+                CREATE INDEX faculty_search_vector_idx
+                ON faculty USING GIN(search_vector)
+            """))
+            print("✓ Created GIN index")
 
-        print("Creating GIN index for full-text search...")
-
+        # Create or replace trigger function
+        print("Creating trigger function...")
         conn.execute(text("""
-            CREATE INDEX faculty_fulltext_idx ON faculty
-            USING GIN(
-                to_tsvector('english',
-                    name || ' ' ||
-                    COALESCE(research_sumary, '') || ' ' ||
-                    COALESCE(array_to_string(research_tags, ' '), '')
-                )
-            )
+            CREATE OR REPLACE FUNCTION faculty_search_vector_update()
+            RETURNS trigger AS $$
+            BEGIN
+                NEW.search_vector := to_tsvector('english',
+                    COALESCE(NEW.name, '') || ' ' ||
+                    COALESCE(NEW.research_sumary, '') || ' ' ||
+                    COALESCE(array_to_string(NEW.research_tags, ' '), '')
+                );
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql
+        """))
+        print("✓ Created trigger function")
+
+        # Check if trigger exists
+        result = conn.execute(text("""
+            SELECT tgname
+            FROM pg_trigger
+            WHERE tgname = 'faculty_search_vector_trigger'
         """))
 
+        if result.fetchone():
+            print("✓ Trigger already exists")
+        else:
+            print("Creating trigger...")
+            conn.execute(text("""
+                CREATE TRIGGER faculty_search_vector_trigger
+                BEFORE INSERT OR UPDATE ON faculty
+                FOR EACH ROW
+                EXECUTE FUNCTION faculty_search_vector_update()
+            """))
+            print("✓ Created trigger")
+
         conn.commit()
-        print("✓ Successfully created 'faculty_fulltext_idx' index")
 
 
 if __name__ == "__main__":
     try:
-        add_fulltext_index()
-        print("\nMigration completed successfully!")
+        add_fulltext_search()
+        print("\n✓ Migration completed successfully!")
     except Exception as e:
         print(f"\n✗ Migration failed: {e}")
         sys.exit(1)
