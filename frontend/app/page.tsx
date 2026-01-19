@@ -176,6 +176,7 @@ export default function Home() {
                 Describe your research interests
               </h2>
               <Textarea
+                aria-label="Describe your research interests"
                 placeholder="e.g., statistical learning theory, causal inference, reinforcement learning, convex optimization, Bayesian methods..."
                 className="min-h-[120px] mb-4"
                 value={query}
