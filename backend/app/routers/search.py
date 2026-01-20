@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.schemas import ExplanationRequest, ExplanationResponse, SearchRequest, SearchResult
@@ -10,9 +12,11 @@ from app.services.search import search_faculty_hybrid
 from app.models import Faculty, Paper
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/", response_model=list[SearchResult])
-def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def search_faculty(req: Request, request: SearchRequest, db: Session = Depends(get_db)):
     # Expand query to include full terms for common abbreviations
     expanded_query = expand_query(request.query)
     query_embedding = get_embedding(expanded_query)
@@ -26,7 +30,8 @@ def search_faculty(request: SearchRequest, db: Session = Depends(get_db)):
     )
 
 @router.post("/explain", response_model=ExplanationResponse)
-def explain_match(request: ExplanationRequest, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+def explain_match(req: Request, request: ExplanationRequest, db: Session = Depends(get_db)):
     faculty = db.query(Faculty).filter(Faculty.id == request.faculty_id).first()
     if not faculty:
         from fastapi import HTTPException
