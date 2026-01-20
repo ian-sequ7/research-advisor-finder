@@ -76,6 +76,7 @@ export function CompareBar({
               aria-label={`Compare ${selected.length} faculty members`}
             >
               <GitCompare className="h-4 w-4" />
+              <span className="inline xs:hidden">Comp.</span>
               <span className="hidden xs:inline">Compare</span> ({selected.length})
             </Button>
           </div>
