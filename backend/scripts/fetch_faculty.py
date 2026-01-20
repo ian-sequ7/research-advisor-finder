@@ -19,6 +19,9 @@ from materials_faculty import MATERIALS_FACULTY
 from compbio_faculty import COMPBIO_FACULTY
 from bme_faculty import BME_FACULTY
 from chemeng_faculty import CHEMENG_FACULTY
+from ucsb_faculty import UCSB_FACULTY
+from ucla_faculty import UCLA_FACULTY
+from stanford_faculty import STANFORD_FACULTY
 
 load_dotenv()
 
@@ -805,6 +808,9 @@ CATEGORY_MAP = {
     "compbio": COMPBIO_FACULTY,
     "bme": BME_FACULTY,
     "chemeng": CHEMENG_FACULTY,
+    "ucsb": UCSB_FACULTY,
+    "ucla": UCLA_FACULTY,
+    "stanford": STANFORD_FACULTY,
 }
 
 # Combine all faculty into one dictionary for the fetch script
@@ -824,7 +830,10 @@ FACULTY_BY_SCHOOL.update(MATERIALS_FACULTY)
 FACULTY_BY_SCHOOL.update(COMPBIO_FACULTY)
 FACULTY_BY_SCHOOL.update(BME_FACULTY)
 FACULTY_BY_SCHOOL.update(CHEMENG_FACULTY)
-# Expansion: Economics, Biostat, EE, Materials, CompBio, BME, ChemEng
+FACULTY_BY_SCHOOL.update(UCSB_FACULTY)
+FACULTY_BY_SCHOOL.update(UCLA_FACULTY)
+FACULTY_BY_SCHOOL.update(STANFORD_FACULTY)
+# Expansion: Economics, Biostat, EE, Materials, CompBio, BME, ChemEng, UCSB, UCLA, Stanford
 
 
 def search_author(name: str) -> dict | None:
