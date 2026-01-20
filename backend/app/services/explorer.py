@@ -253,15 +253,32 @@ Respond in JSON format:
 def match_faculty_to_direction(db: Session, direction_description: str, limit: int = DEFAULT_FACULTY_MATCHES) -> list[dict]:
     query_embedding = get_embedding(direction_description)
 
+    # Batch fetch faculty with their top papers using a window function
     results = db.execute(
         text("""
-            SELECT id, name, affiliation, h_index, paper_count,
-                   semantic_scholar_id, research_tags,
-                   1 - (embedding <=> :embedding) as similarity
-            FROM faculty
-            WHERE embedding IS NOT NULL
-            ORDER BY embedding <=> :embedding
-            LIMIT :limit
+            WITH top_papers AS (
+                SELECT
+                    p.faculty_id,
+                    p.title,
+                    p.citation_count,
+                    ROW_NUMBER() OVER (PARTITION BY p.faculty_id ORDER BY p.citation_count DESC NULLS LAST) as rn
+                FROM papers p
+            ),
+            matched_faculty AS (
+                SELECT id, name, affiliation, h_index, paper_count,
+                       semantic_scholar_id, research_tags,
+                       1 - (embedding <=> :embedding) as similarity
+                FROM faculty
+                WHERE embedding IS NOT NULL
+                ORDER BY embedding <=> :embedding
+                LIMIT :limit
+            )
+            SELECT
+                mf.id, mf.name, mf.affiliation, mf.h_index, mf.paper_count,
+                mf.semantic_scholar_id, mf.research_tags, mf.similarity,
+                tp.title as top_paper_title
+            FROM matched_faculty mf
+            LEFT JOIN top_papers tp ON mf.id = tp.faculty_id AND tp.rn = 1
         """),
         {"embedding": str(query_embedding), "limit": limit}
     ).fetchall()
@@ -269,16 +286,27 @@ def match_faculty_to_direction(db: Session, direction_description: str, limit: i
     matches = []
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    for row in results:
-        top_paper = db.query(Paper).filter(
-            Paper.faculty_id == row.id
-        ).order_by(Paper.citation_count.desc()).first()
+    # Build a mapping of faculty_id to top_paper_title for efficient lookup
+    faculty_data = {
+        row.id: {
+            "name": row.name,
+            "affiliation": row.affiliation,
+            "h_index": row.h_index,
+            "paper_count": row.paper_count,
+            "semantic_scholar_id": row.semantic_scholar_id,
+            "research_tags": row.research_tags,
+            "similarity": row.similarity,
+            "top_paper_title": row.top_paper_title
+        }
+        for row in results
+    }
 
+    for faculty_id, data in faculty_data.items():
         explanation_prompt = f"""In 1-2 sentences, explain why this faculty member matches a student interested in: "{direction_description}"
 
-Faculty: {row.name} at {row.affiliation}
-Research areas: {', '.join(row.research_tags or [])}
-Top paper: {top_paper.title if top_paper else 'N/A'}"""
+Faculty: {data['name']} at {data['affiliation']}
+Research areas: {', '.join(data['research_tags'] or [])}
+Top paper: {data['top_paper_title'] if data['top_paper_title'] else 'N/A'}"""
 
         try:
             explanation_response = client.messages.create(
@@ -288,21 +316,21 @@ Top paper: {top_paper.title if top_paper else 'N/A'}"""
             )
             explanation = explanation_response.content[0].text.strip()
         except (APIError, APIConnectionError, RateLimitError, APITimeoutError):
-            explanation = f"Research focus aligns with {', '.join(row.research_tags[:3] if row.research_tags else ['your interests'])}."
+            explanation = f"Research focus aligns with {', '.join(data['research_tags'][:3] if data['research_tags'] else ['your interests'])}."
 
         matches.append({
             "faculty": {
-                "id": row.id,
-                "name": row.name,
-                "affiliation": row.affiliation,
-                "h_index": row.h_index,
-                "paper_count": row.paper_count,
-                "semantic_scholar_id": row.semantic_scholar_id,
-                "research_tags": row.research_tags or []
+                "id": faculty_id,
+                "name": data['name'],
+                "affiliation": data['affiliation'],
+                "h_index": data['h_index'],
+                "paper_count": data['paper_count'],
+                "semantic_scholar_id": data['semantic_scholar_id'],
+                "research_tags": data['research_tags'] or []
             },
-            "similarity": float(row.similarity),
+            "similarity": float(data['similarity']),
             "explanation": explanation,
-            "key_paper": top_paper.title if top_paper else None
+            "key_paper": data['top_paper_title']
         })
 
     return matches
