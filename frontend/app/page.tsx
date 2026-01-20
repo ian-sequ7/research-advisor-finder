@@ -269,14 +269,66 @@ export default function Home() {
         )}
 
         {!loading && searched && results.length === 0 && !error && (
-          <div className="text-center py-12 space-y-3">
+          <div className="text-center py-12 space-y-4 max-w-2xl mx-auto">
             <Search className="h-12 w-12 mx-auto text-muted-foreground/50" />
-            <p className="text-muted-foreground font-medium">
-              No faculty found matching your criteria
-            </p>
-            <p className="text-sm text-muted-foreground/80">
-              Try lowering the minimum h-index, broadening your search terms, or selecting different universities.
-            </p>
+            <div>
+              <p className="text-muted-foreground font-medium mb-1">
+                No faculty found matching your search
+              </p>
+              {(query || extractedInterests) && (
+                <p className="text-sm text-muted-foreground/70 italic">
+                  "{(extractedInterests || query).substring(0, 100)}{(extractedInterests || query).length > 100 ? '...' : ''}"
+                </p>
+              )}
+            </div>
+
+            <div className="bg-slate-50 rounded-lg p-4 text-left space-y-3">
+              <p className="text-sm font-medium text-slate-700">Suggestions:</p>
+              <ul className="text-sm text-slate-600 space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>Try broader or more general terms (e.g., "machine learning" instead of "few-shot meta-learning for medical imaging")</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>Check spelling and try alternative terminology</span>
+                </li>
+                {minHIndex > 0 && (
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>Lower the minimum h-index filter (currently set to {minHIndex})</span>
+                  </li>
+                )}
+                {universities.length > 0 && (
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>Remove university filters to expand results</span>
+                  </li>
+                )}
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">•</span>
+                  <span>Try one of the example queries below</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Try these searches:</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {exampleQueries.slice(0, 4).map((example) => (
+                  <button
+                    key={example}
+                    onClick={() => {
+                      setQuery(example);
+                      setSearchMode('text');
+                    }}
+                    className="text-xs px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
