@@ -4,16 +4,49 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 
 const UNIVERSITIES = [
+  // Top tier
   "MIT",
   "Stanford",
+  "Berkeley",
   "CMU",
-  "UC Berkeley",
-  "UIUC",
-  "Cornell",
-  "UW",
-  "Georgia Tech",
+  "Caltech",
   "Princeton",
+  "Harvard",
+  "Yale",
+  "Columbia",
+  "Cornell",
+  // Strong programs
+  "UChicago",
+  "Northwestern",
+  "Duke",
+  "UPenn",
+  "Johns Hopkins",
+  "Brown",
+  "NYU",
+  // Large state schools
+  "UCLA",
+  "UCSD",
+  "UCSB",
+  "UIUC",
+  "UMich",
+  "Georgia Tech",
   "UT Austin",
+  "UW",
+  "Wisconsin",
+  "Minnesota",
+  // Other strong programs
+  "Purdue",
+  "Maryland",
+  "USC",
+  "Rice",
+  "UNC",
+  "UMass",
+  "Penn State",
+  "Ohio State",
+  "Texas A&M",
+  "Boston University",
+  "Virginia Tech",
+  "Delaware",
 ];
 
 interface FiltersProps {
