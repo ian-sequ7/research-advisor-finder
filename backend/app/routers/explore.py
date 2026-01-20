@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.models import Paper, Faculty
@@ -17,6 +19,7 @@ from app.services.explorer import (
 )
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 def _get_faculty_names(papers: list[Paper], db: Session) -> dict[int, str]:
@@ -46,7 +49,8 @@ def _paper_to_response(paper: Paper, faculty_names: dict[int, str]) -> ExplorePa
 
 
 @router.post("/start", response_model=ExploreStartResponse)
-def start_exploration(request: ExploreStartRequest, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+def start_exploration(req: Request, request: ExploreStartRequest, db: Session = Depends(get_db)):
     try:
         session = create_session(request.initial_interest)
 
@@ -87,7 +91,8 @@ def start_exploration(request: ExploreStartRequest, db: Session = Depends(get_db
 
 
 @router.post("/respond", response_model=ExploreRespondResponse)
-def respond_to_exploration(request: ExploreRespondRequest, db: Session = Depends(get_db)):
+@limiter.limit("40/minute")
+def respond_to_exploration(req: Request, request: ExploreRespondRequest, db: Session = Depends(get_db)):
     try:
         session = get_session(request.session_id)
         if not session:
@@ -143,7 +148,8 @@ def respond_to_exploration(request: ExploreRespondRequest, db: Session = Depends
 
 
 @router.post("/finish", response_model=ExploreFinishResponse)
-def finish_exploration(request: ExploreFinishRequest, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+def finish_exploration(req: Request, request: ExploreFinishRequest, db: Session = Depends(get_db)):
     try:
         session = get_session(request.session_id)
         if not session:
