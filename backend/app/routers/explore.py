@@ -110,7 +110,7 @@ def respond_to_exploration(request: Request, body: ExploreRespondRequest, db: Se
         session.preferences["disliked"].extend(result.get("disliked", []))
         session.preferences["curious"].extend(result.get("curious", []))
 
-        refined_query = result.get("refined_query", request.response)
+        refined_query = result.get("refined_query", body.response)
         papers = get_similar_papers(
             db,
             query=refined_query,
