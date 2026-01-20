@@ -23,7 +23,6 @@ with engine.connect() as conn:
     print("Creating HNSW index on faculty.embedding...")
     print("This may take a minute for large tables...")
 
-    # Create HNSW index on faculty embeddings
     conn.execute(text("""
         CREATE INDEX CONCURRENTLY IF NOT EXISTS faculty_embedding_hnsw_idx
         ON faculty USING hnsw (embedding vector_cosine_ops)
@@ -41,14 +40,12 @@ with engine.connect() as conn:
     conn.commit()
     print("✓ Papers embedding index created")
 
-    # Analyze tables to update query planner statistics
     print("Analyzing tables...")
     conn.execute(text("ANALYZE faculty;"))
     conn.execute(text("ANALYZE papers;"))
     conn.commit()
     print("✓ Tables analyzed")
 
-    # Check index sizes
     result = conn.execute(text("""
         SELECT indexname, pg_size_pretty(pg_relation_size(indexname::regclass)) as size
         FROM pg_indexes

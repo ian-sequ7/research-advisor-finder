@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from app.database import SessionLocal
 from app.models import Faculty, Paper
 
-# Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from economics_faculty import ECONOMICS_FACULTY
@@ -30,13 +29,6 @@ S2_API_KEY = os.environ.get("SEMANTIC_SCHOLAR_API_KEY")
 
 HEADERS = {"x-api-key": S2_API_KEY} if S2_API_KEY else {}
 
-# =============================================================================
-# FACULTY BY SCHOOL - Organized by Department/Field
-# Categories: CS, Statistics, Data Science, Applied Math
-# US Universities Only
-# =============================================================================
-
-# --- COMPUTER SCIENCE (AI/ML, Systems, Theory, Security, HCI) ---
 CS_FACULTY = {
     "MIT CS": [
         "Regina Barzilay", "Hal Abelson", "Kaiming He", "Tommi Jaakkola", "Leslie Kaelbling",
@@ -225,7 +217,6 @@ CS_FACULTY = {
     ]
 }
 
-# --- STATISTICS ---
 STATS_FACULTY = {
     "Stanford Stats": [
         "Emmanuel Candes", "Persi Diaconis", "David Donoho", "Bradley Efron",
@@ -348,7 +339,6 @@ STATS_FACULTY = {
     ]
 }
 
-# --- DATA SCIENCE ---
 DS_FACULTY = {
     "NYU Data Science": [
         "Yann LeCun", "Kyunghyun Cho", "Joan Bruna", "Samuel Bowman",
@@ -403,7 +393,6 @@ DS_FACULTY = {
     ]
 }
 
-# --- APPLIED MATH / OPTIMIZATION / OPERATIONS RESEARCH ---
 MATH_FACULTY = {
     "MIT Applied Math": [
         "Michel Goemans", "Pablo Parrilo", "Philippe Rigollet", "Ankur Moitra",
@@ -487,7 +476,6 @@ MATH_FACULTY = {
     ]
 }
 
-# --- GENERAL MATHEMATICS (Probability, Combinatorics, Analysis) ---
 MATH_GENERAL_FACULTY = {
     "MIT Math": [
         "Alexei Borodin", "Jacopo Borga", "Elchanan Mossel", "Philippe Rigollet",
@@ -569,7 +557,6 @@ MATH_GENERAL_FACULTY = {
     ]
 }
 
-# --- PHYSICS (Quantum Information, Statistical Physics, Condensed Matter Theory) ---
 PHYSICS_FACULTY = {
     "MIT Physics": [
         "Mehran Kardar", "Isaac Chuang", "William Oliver", "Aram Harrow",
@@ -636,7 +623,6 @@ PHYSICS_FACULTY = {
     ]
 }
 
-# --- CS EXPANSION (Theory, Systems, Programming Languages) ---
 CS_GENERAL_FACULTY = {
     "MIT CS Theory/Systems": [
         "Frans Kaashoek", "Robert Morris", "Nickolai Zeldovich", "Adam Belay",
@@ -725,7 +711,6 @@ CS_GENERAL_FACULTY = {
     ]
 }
 
-# --- INFORMATION SCHOOLS (Computational/Quantitative Information Science) ---
 INFORMATICS_FACULTY = {
     "Berkeley iSchool": [
         "David Bamman", "Joshua Blumenstock", "Marti Hearst", "Hany Farid",
@@ -789,9 +774,6 @@ INFORMATICS_FACULTY = {
     ]
 }
 
-# =============================================================================
-# CATEGORY MAP - For selective fetching with --only flag
-# =============================================================================
 CATEGORY_MAP = {
     "cs": CS_FACULTY,
     "stats": STATS_FACULTY,
@@ -813,7 +795,6 @@ CATEGORY_MAP = {
     "stanford": STANFORD_FACULTY,
 }
 
-# Combine all faculty into one dictionary for the fetch script
 FACULTY_BY_SCHOOL = {}
 FACULTY_BY_SCHOOL.update(CS_FACULTY)
 FACULTY_BY_SCHOOL.update(STATS_FACULTY)
@@ -833,7 +814,6 @@ FACULTY_BY_SCHOOL.update(CHEMENG_FACULTY)
 FACULTY_BY_SCHOOL.update(UCSB_FACULTY)
 FACULTY_BY_SCHOOL.update(UCLA_FACULTY)
 FACULTY_BY_SCHOOL.update(STANFORD_FACULTY)
-# Expansion: Economics, Biostat, EE, Materials, CompBio, BME, ChemEng, UCSB, UCLA, Stanford
 
 
 def search_author(name: str) -> dict | None:
@@ -961,7 +941,6 @@ def fetch_all_faculty(categories: list[str] | None = None):
 
                 result = save_faculty(db, author, school)
                 if result:
-                    # Check if it was skipped (already exists)
                     existing = db.query(Faculty).filter(
                         Faculty.semantic_scholar_id == author["authorId"]
                     ).first()

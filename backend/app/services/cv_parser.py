@@ -4,9 +4,8 @@ from io import BytesIO
 from anthropic import Anthropic
 import os
 
-# CV parsing configuration constants
-CV_MAX_CHARS = 15000  # Maximum characters to process from CV text
-CV_SUMMARY_MAX_TOKENS = 500  # Max tokens for LLM research interest summarization
+CV_MAX_CHARS = 15000
+CV_SUMMARY_MAX_TOKENS = 500
 
 client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 

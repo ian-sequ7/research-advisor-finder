@@ -2,8 +2,7 @@ import os
 import re
 from anthropic import Anthropic
 
-# Explanation generation constants
-EXPLANATION_MAX_TOKENS = 400  # Max tokens for generating faculty-student match explanations
+EXPLANATION_MAX_TOKENS = 400
 
 
 def generate_explanation(interests: str, faculty_name: str, papers: list[str]) -> dict:

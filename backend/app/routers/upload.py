@@ -13,7 +13,6 @@ from app.services.search import search_faculty_by_embedding
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
 
-# Maximum file size: 10MB
 MAX_FILE_SIZE = 10 * 1024 * 1024
 
 

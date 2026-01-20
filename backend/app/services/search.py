@@ -4,11 +4,10 @@ from sqlalchemy.orm import Session
 from app.models import Paper
 from app.schemas import SearchResult
 
-# Search configuration constants
-RRF_K_CONSTANT = 60  # Standard constant for Reciprocal Rank Fusion
-FULLTEXT_SEARCH_LIMIT = 50  # Default limit for full-text search results
-VECTOR_SEARCH_LIMIT = 50  # Default limit for vector similarity search results
-MAX_PAPERS_PER_FACULTY = 5  # Maximum number of top papers to include per faculty member
+RRF_K_CONSTANT = 60
+FULLTEXT_SEARCH_LIMIT = 50
+VECTOR_SEARCH_LIMIT = 50
+MAX_PAPERS_PER_FACULTY = 5
 
 
 def search_faculty_fulltext(
@@ -93,7 +92,6 @@ def search_faculty_by_embedding(
 
     faculty_ids = [row.id for row in results]
 
-    # Batch fetch papers for all faculty (solves N+1 query problem)
     papers_query = (
         db.query(Paper)
         .filter(Paper.faculty_id.in_(faculty_ids))
@@ -101,7 +99,6 @@ def search_faculty_by_embedding(
         .all()
     )
 
-    # Group papers by faculty_id, keeping top papers per faculty
     papers_by_faculty = {}
     for paper in papers_query:
         if paper.faculty_id not in papers_by_faculty:
@@ -109,7 +106,6 @@ def search_faculty_by_embedding(
         if len(papers_by_faculty[paper.faculty_id]) < MAX_PAPERS_PER_FACULTY:
             papers_by_faculty[paper.faculty_id].append(paper)
 
-    # Build response
     search_results = []
     for row in results:
         papers = papers_by_faculty.get(row.id, [])
@@ -152,7 +148,6 @@ def search_faculty_hybrid(
     RRF (Reciprocal Rank Fusion) formula: score = sum(1 / (k + rank))
     where k=60 is the standard constant for search result fusion.
     """
-    # Get vector search results (semantic similarity)
     where_clauses = ["embedding IS NOT NULL", "h_index >= :min_h"]
     params = {
         "embedding": str(embedding),
@@ -180,7 +175,6 @@ def search_faculty_hybrid(
         params
     ).fetchall()
 
-    # Get full-text search results
     fulltext_results = search_faculty_fulltext(
         db=db,
         query=query,
@@ -189,14 +183,11 @@ def search_faculty_hybrid(
         universities=universities
     )
 
-    # Build rank dictionaries
     vector_ranks = {row.id: rank + 1 for rank, row in enumerate(vector_results)}
     fulltext_ranks = {faculty_id: rank + 1 for rank, (faculty_id, _) in enumerate(fulltext_results)}
 
-    # WHY: Combine all unique faculty IDs from both searches for RRF scoring
     all_faculty_ids = set(vector_ranks.keys()) | set(fulltext_ranks.keys())
 
-    # Calculate RRF scores
     rrf_scores = {}
     for faculty_id in all_faculty_ids:
         score = 0.0
@@ -206,13 +197,11 @@ def search_faculty_hybrid(
             score += 1.0 / (k + fulltext_ranks[faculty_id])
         rrf_scores[faculty_id] = score
 
-    # Sort by RRF score and get top results
     top_faculty_ids = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)[:limit]
 
     if not top_faculty_ids:
         return []
 
-    # Fetch full faculty details for top results
     faculty_details = db.execute(
         text("""
             SELECT
@@ -224,10 +213,8 @@ def search_faculty_hybrid(
         {"faculty_ids": top_faculty_ids}
     ).fetchall()
 
-    # Create lookup for faculty details
     faculty_map = {row.id: row for row in faculty_details}
 
-    # Batch fetch papers for all faculty
     papers_query = (
         db.query(Paper)
         .filter(Paper.faculty_id.in_(top_faculty_ids))
@@ -235,7 +222,6 @@ def search_faculty_hybrid(
         .all()
     )
 
-    # Group papers by faculty_id, keeping top papers per faculty
     papers_by_faculty = {}
     for paper in papers_query:
         if paper.faculty_id not in papers_by_faculty:
@@ -243,7 +229,6 @@ def search_faculty_hybrid(
         if len(papers_by_faculty[paper.faculty_id]) < MAX_PAPERS_PER_FACULTY:
             papers_by_faculty[paper.faculty_id].append(paper)
 
-    # Build response maintaining RRF rank order
     search_results = []
     for faculty_id in top_faculty_ids:
         if faculty_id not in faculty_map:

@@ -13,13 +13,12 @@ from sqlalchemy import text
 from app.services.embeddings import get_embedding
 from app.models import Paper, Faculty
 
-# Exploration configuration constants
-DEFAULT_PAPERS_PER_ROUND = 4  # Default number of papers to show per exploration round
-PAPER_DIVERSITY_MULTIPLIER = 3  # Multiplier for fetching diverse paper candidates
-DEFAULT_FACULTY_MATCHES = 3  # Default number of faculty matches to return
-PREFERENCE_EXTRACTION_MAX_TOKENS = 500  # Max tokens for LLM preference extraction
-DIRECTION_SYNTHESIS_MAX_TOKENS = 300  # Max tokens for LLM direction synthesis
-FACULTY_EXPLANATION_MAX_TOKENS = 100  # Max tokens for LLM faculty explanation
+DEFAULT_PAPERS_PER_ROUND = 4
+PAPER_DIVERSITY_MULTIPLIER = 3
+DEFAULT_FACULTY_MATCHES = 3
+PREFERENCE_EXTRACTION_MAX_TOKENS = 500
+DIRECTION_SYNTHESIS_MAX_TOKENS = 300
+FACULTY_EXPLANATION_MAX_TOKENS = 100
 
 _sessions: dict[str, "ExploreSession"] = {}
 _sessions_lock = threading.Lock()
@@ -253,7 +252,6 @@ Respond in JSON format:
 def match_faculty_to_direction(db: Session, direction_description: str, limit: int = DEFAULT_FACULTY_MATCHES) -> list[dict]:
     query_embedding = get_embedding(direction_description)
 
-    # Batch fetch faculty with their top papers using a window function
     results = db.execute(
         text("""
             WITH top_papers AS (
@@ -286,7 +284,6 @@ def match_faculty_to_direction(db: Session, direction_description: str, limit: i
     matches = []
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    # Build a mapping of faculty_id to top_paper_title for efficient lookup
     faculty_data = {
         row.id: {
             "name": row.name,

@@ -17,7 +17,6 @@ limiter = Limiter(key_func=get_remote_address)
 @router.post("/", response_model=list[SearchResult])
 @limiter.limit("30/minute")
 def search_faculty(request: Request, body: SearchRequest, db: Session = Depends(get_db)):
-    # Expand query to include full terms for common abbreviations
     expanded_query = expand_query(body.query)
     query_embedding = get_embedding(expanded_query)
     return search_faculty_hybrid(

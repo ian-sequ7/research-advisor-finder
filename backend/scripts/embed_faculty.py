@@ -17,7 +17,6 @@ def get_embedding(text: str) -> list[float]:
     return response.data[0].embedding
 
 def build_faculty_text(faculty: Faculty, papers: list[Paper]) -> str:
-
     parts = [f"Professor {faculty.name}"]
 
     if faculty.affiliation:

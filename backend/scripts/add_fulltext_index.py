@@ -7,7 +7,6 @@ Adds a tsvector column and GIN index for fast text search.
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import app modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sqlalchemy import text
@@ -23,7 +22,6 @@ def add_fulltext_search():
     4. Create trigger to keep it updated
     """
     with engine.connect() as conn:
-        # Check if column already exists
         result = conn.execute(text("""
             SELECT column_name
             FROM information_schema.columns
@@ -41,7 +39,6 @@ def add_fulltext_search():
             """))
             print("✓ Added search_vector column")
 
-        # Populate the column with existing data
         print("Populating search_vector with existing data...")
         conn.execute(text("""
             UPDATE faculty
@@ -54,7 +51,6 @@ def add_fulltext_search():
         """))
         print("✓ Populated search_vector")
 
-        # Check if index already exists
         result = conn.execute(text("""
             SELECT indexname
             FROM pg_indexes
@@ -72,7 +68,6 @@ def add_fulltext_search():
             """))
             print("✓ Created GIN index")
 
-        # Create or replace trigger function
         print("Creating trigger function...")
         conn.execute(text("""
             CREATE OR REPLACE FUNCTION faculty_search_vector_update()
@@ -89,7 +84,6 @@ def add_fulltext_search():
         """))
         print("✓ Created trigger function")
 
-        # Check if trigger exists
         result = conn.execute(text("""
             SELECT tgname
             FROM pg_trigger

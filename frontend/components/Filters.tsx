@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 
 const UNIVERSITIES = [
-  // Top tier
   "MIT",
   "Stanford",
   "Berkeley",
@@ -15,7 +14,6 @@ const UNIVERSITIES = [
   "Yale",
   "Columbia",
   "Cornell",
-  // Strong programs
   "UChicago",
   "Northwestern",
   "Duke",
@@ -23,7 +21,6 @@ const UNIVERSITIES = [
   "Johns Hopkins",
   "Brown",
   "NYU",
-  // Large state schools
   "UCLA",
   "UCSD",
   "UCSB",
@@ -34,7 +31,6 @@ const UNIVERSITIES = [
   "UW",
   "Wisconsin",
   "Minnesota",
-  // Other strong programs
   "Purdue",
   "Maryland",
   "USC",

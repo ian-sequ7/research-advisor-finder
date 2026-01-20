@@ -55,7 +55,7 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
     }
   };
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   const validateFile = (file: File): { isValid: boolean; error: string } => {
     const validTypes = [
