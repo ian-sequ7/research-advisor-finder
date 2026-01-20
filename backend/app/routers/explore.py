@@ -50,13 +50,13 @@ def _paper_to_response(paper: Paper, faculty_names: dict[int, str]) -> ExplorePa
 
 @router.post("/start", response_model=ExploreStartResponse)
 @limiter.limit("20/minute")
-def start_exploration(req: Request, request: ExploreStartRequest, db: Session = Depends(get_db)):
+def start_exploration(request: Request, body: ExploreStartRequest, db: Session = Depends(get_db)):
     try:
-        session = create_session(request.initial_interest)
+        session = create_session(body.initial_interest)
 
         papers = get_diverse_papers(
             db,
-            interest=request.initial_interest,
+            interest=body.initial_interest,
             exclude_ids=[],
             limit=4
         )
@@ -70,7 +70,7 @@ def start_exploration(req: Request, request: ExploreStartRequest, db: Session = 
         session.shown_paper_ids = [p.id for p in papers]
         session.conversation.append({
             "role": "system",
-            "content": f"User interested in: {request.initial_interest}"
+            "content": f"User interested in: {body.initial_interest}"
         })
 
         prompt = generate_exploration_prompt(papers, round_num=0)
@@ -92,19 +92,19 @@ def start_exploration(req: Request, request: ExploreStartRequest, db: Session = 
 
 @router.post("/respond", response_model=ExploreRespondResponse)
 @limiter.limit("40/minute")
-def respond_to_exploration(req: Request, request: ExploreRespondRequest, db: Session = Depends(get_db)):
+def respond_to_exploration(request: Request, body: ExploreRespondRequest, db: Session = Depends(get_db)):
     try:
-        session = get_session(request.session_id)
+        session = get_session(body.session_id)
         if not session:
             raise HTTPException(status_code=404, detail="Session not found or expired")
 
         session.conversation.append({
             "role": "user",
-            "content": request.response
+            "content": body.response
         })
         session.rounds += 1
 
-        result = extract_preferences_and_refine(session, request.response)
+        result = extract_preferences_and_refine(session, body.response)
 
         session.preferences["liked"].extend(result.get("liked", []))
         session.preferences["disliked"].extend(result.get("disliked", []))
@@ -149,9 +149,9 @@ def respond_to_exploration(req: Request, request: ExploreRespondRequest, db: Ses
 
 @router.post("/finish", response_model=ExploreFinishResponse)
 @limiter.limit("20/minute")
-def finish_exploration(req: Request, request: ExploreFinishRequest, db: Session = Depends(get_db)):
+def finish_exploration(request: Request, body: ExploreFinishRequest, db: Session = Depends(get_db)):
     try:
-        session = get_session(request.session_id)
+        session = get_session(body.session_id)
         if not session:
             raise HTTPException(status_code=404, detail="Session not found or expired")
 
@@ -163,7 +163,7 @@ def finish_exploration(req: Request, request: ExploreFinishRequest, db: Session 
             limit=3
         )
 
-        delete_session(request.session_id)
+        delete_session(body.session_id)
 
         return ExploreFinishResponse(
             direction_summary=direction["title"],

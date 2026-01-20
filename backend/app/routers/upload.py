@@ -20,7 +20,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 @router.post("/cv", response_model=CVUploadResponse)
 @limiter.limit("10/minute")
 async def upload_cv(
-    req: Request,
+    request: Request,
     file: UploadFile = File(...),
     limit: int = Query(default=10, ge=1, le=20),
     min_h_index: Optional[int] = Query(default=0, ge=0),

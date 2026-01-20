@@ -16,23 +16,23 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/", response_model=list[SearchResult])
 @limiter.limit("30/minute")
-def search_faculty(req: Request, request: SearchRequest, db: Session = Depends(get_db)):
+def search_faculty(request: Request, body: SearchRequest, db: Session = Depends(get_db)):
     # Expand query to include full terms for common abbreviations
-    expanded_query = expand_query(request.query)
+    expanded_query = expand_query(body.query)
     query_embedding = get_embedding(expanded_query)
     return search_faculty_hybrid(
         db=db,
         query=expanded_query,
         embedding=query_embedding,
-        limit=request.limit,
-        min_h_index=request.min_h_index,
-        universities=request.universities,
+        limit=body.limit,
+        min_h_index=body.min_h_index,
+        universities=body.universities,
     )
 
 @router.post("/explain", response_model=ExplanationResponse)
 @limiter.limit("20/minute")
-def explain_match(req: Request, request: ExplanationRequest, db: Session = Depends(get_db)):
-    faculty = db.query(Faculty).filter(Faculty.id == request.faculty_id).first()
+def explain_match(request: Request, body: ExplanationRequest, db: Session = Depends(get_db)):
+    faculty = db.query(Faculty).filter(Faculty.id == body.faculty_id).first()
     if not faculty:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Faculty not found")
@@ -44,7 +44,7 @@ def explain_match(req: Request, request: ExplanationRequest, db: Session = Depen
     paper_titles = [p.title for p in papers]
 
     result = generate_explanation(
-        request.interests,
+        body.interests,
         faculty.name,
         paper_titles
     )
