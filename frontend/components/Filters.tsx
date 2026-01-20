@@ -37,7 +37,12 @@ export function Filters({
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label className="text-sm">Minimum H-Index: {minHIndex}</Label>
+          <Label
+            className="text-sm cursor-help"
+            title="H-index measures a researcher's productivity and citation impact. An H-index of N means N papers with at least N citations each."
+          >
+            Minimum H-Index: {minHIndex}
+          </Label>
           <Slider
             value={[minHIndex]}
             onValueChange={(v) => setMinHIndex(v[0])}
