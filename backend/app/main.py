@@ -28,7 +28,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://localhost:3000",
-        "https://research-advisor-frontend.vercel.app",
+        "https://research-advisor-finder.vercel.app",
         os.environ.get("FRONTEND_URL", "http://localhost:3000"),
     ],
     allow_credentials=True,
