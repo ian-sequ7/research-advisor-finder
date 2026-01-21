@@ -21,7 +21,7 @@ if not DATABASE_URL:
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, isolation_level="AUTOCOMMIT")
 
 with engine.connect() as conn:
     print("Creating HNSW index on faculty.embedding...")
@@ -32,7 +32,6 @@ with engine.connect() as conn:
         ON faculty USING hnsw (embedding vector_cosine_ops)
         WITH (m = 16, ef_construction = 64);
     """))
-    conn.commit()
     print("✓ Faculty embedding index created")
 
     print("Creating HNSW index on papers.embedding...")
@@ -41,13 +40,11 @@ with engine.connect() as conn:
         ON papers USING hnsw (embedding vector_cosine_ops)
         WITH (m = 16, ef_construction = 64);
     """))
-    conn.commit()
     print("✓ Papers embedding index created")
 
     print("Analyzing tables...")
     conn.execute(text("ANALYZE faculty;"))
     conn.execute(text("ANALYZE papers;"))
-    conn.commit()
     print("✓ Tables analyzed")
 
     result = conn.execute(text("""
