@@ -24,6 +24,7 @@ const UNIVERSITIES = [
   "UCLA",
   "UCSD",
   "UCSB",
+  "UCI",
   "UIUC",
   "UMich",
   "Georgia Tech",
