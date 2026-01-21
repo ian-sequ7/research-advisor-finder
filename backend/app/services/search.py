@@ -10,6 +10,20 @@ VECTOR_SEARCH_LIMIT = 50
 MAX_PAPERS_PER_FACULTY = 5
 
 
+def _build_university_filter(universities: list[str]) -> str:
+    """
+    Build a SQL filter clause for university partial matching.
+    Matches affiliations that start with any of the university names.
+    """
+    def sanitize(uni: str) -> str:
+        return uni.replace("'", "''").replace("%", "").replace("_", "")
+
+    conditions = " OR ".join(
+        f"affiliation ILIKE '{sanitize(uni)}%'" for uni in universities
+    )
+    return f"({conditions})"
+
+
 def search_faculty_fulltext(
     db: Session,
     query: str,
@@ -29,8 +43,7 @@ def search_faculty_fulltext(
     }
 
     if universities:
-        where_clauses.append("affiliation = ANY(:universities)")
-        params["universities"] = universities
+        where_clauses.append(_build_university_filter(universities))
 
     where_sql = " AND ".join(where_clauses)
 
@@ -68,8 +81,7 @@ def search_faculty_by_embedding(
     }
 
     if universities:
-        where_clauses.append("affiliation = ANY(:universities)")
-        params["universities"] = universities
+        where_clauses.append(_build_university_filter(universities))
 
     where_sql = " AND ".join(where_clauses)
 
@@ -156,8 +168,7 @@ def search_faculty_hybrid(
     }
 
     if universities:
-        where_clauses.append("affiliation = ANY(:universities)")
-        params["universities"] = universities
+        where_clauses.append(_build_university_filter(universities))
 
     where_sql = " AND ".join(where_clauses)
 
