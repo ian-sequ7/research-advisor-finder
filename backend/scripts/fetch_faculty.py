@@ -21,6 +21,8 @@ from chemeng_faculty import CHEMENG_FACULTY
 from ucsb_faculty import UCSB_FACULTY
 from ucla_faculty import UCLA_FACULTY
 from stanford_faculty import STANFORD_FACULTY
+from uci_faculty import UCI_FACULTY
+from berkeley_faculty import BERKELEY_FACULTY
 
 load_dotenv()
 
@@ -793,6 +795,8 @@ CATEGORY_MAP = {
     "ucsb": UCSB_FACULTY,
     "ucla": UCLA_FACULTY,
     "stanford": STANFORD_FACULTY,
+    "uci": UCI_FACULTY,
+    "berkeley": BERKELEY_FACULTY,
 }
 
 FACULTY_BY_SCHOOL = {}
@@ -814,6 +818,8 @@ FACULTY_BY_SCHOOL.update(CHEMENG_FACULTY)
 FACULTY_BY_SCHOOL.update(UCSB_FACULTY)
 FACULTY_BY_SCHOOL.update(UCLA_FACULTY)
 FACULTY_BY_SCHOOL.update(STANFORD_FACULTY)
+FACULTY_BY_SCHOOL.update(UCI_FACULTY)
+FACULTY_BY_SCHOOL.update(BERKELEY_FACULTY)
 
 
 def search_author(name: str) -> dict | None:
