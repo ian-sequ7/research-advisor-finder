@@ -23,6 +23,16 @@ from ucla_faculty import UCLA_FACULTY
 from stanford_faculty import STANFORD_FACULTY
 from uci_faculty import UCI_FACULTY
 from berkeley_faculty import BERKELEY_FACULTY
+from ucsd_faculty import UCSD_FACULTY
+from usc_faculty import USC_FACULTY
+from caltech_faculty import CALTECH_FACULTY
+from ucdavis_faculty import UCDAVIS_FACULTY
+from sdsu_faculty import SDSU_FACULTY
+from ucr_faculty import UCR_FACULTY
+from ucsc_faculty import UCSC_FACULTY
+from rutgers_faculty import RUTGERS_FACULTY
+from utah_faculty import UTAH_FACULTY
+from duke_faculty import DUKE_FACULTY
 
 load_dotenv()
 
@@ -797,6 +807,16 @@ CATEGORY_MAP = {
     "stanford": STANFORD_FACULTY,
     "uci": UCI_FACULTY,
     "berkeley": BERKELEY_FACULTY,
+    "ucsd": UCSD_FACULTY,
+    "usc": USC_FACULTY,
+    "caltech": CALTECH_FACULTY,
+    "ucdavis": UCDAVIS_FACULTY,
+    "sdsu": SDSU_FACULTY,
+    "ucr": UCR_FACULTY,
+    "ucsc": UCSC_FACULTY,
+    "rutgers": RUTGERS_FACULTY,
+    "utah": UTAH_FACULTY,
+    "duke": DUKE_FACULTY,
 }
 
 FACULTY_BY_SCHOOL = {}
@@ -820,6 +840,16 @@ FACULTY_BY_SCHOOL.update(UCLA_FACULTY)
 FACULTY_BY_SCHOOL.update(STANFORD_FACULTY)
 FACULTY_BY_SCHOOL.update(UCI_FACULTY)
 FACULTY_BY_SCHOOL.update(BERKELEY_FACULTY)
+FACULTY_BY_SCHOOL.update(UCSD_FACULTY)
+FACULTY_BY_SCHOOL.update(USC_FACULTY)
+FACULTY_BY_SCHOOL.update(CALTECH_FACULTY)
+FACULTY_BY_SCHOOL.update(UCDAVIS_FACULTY)
+FACULTY_BY_SCHOOL.update(SDSU_FACULTY)
+FACULTY_BY_SCHOOL.update(UCR_FACULTY)
+FACULTY_BY_SCHOOL.update(UCSC_FACULTY)
+FACULTY_BY_SCHOOL.update(RUTGERS_FACULTY)
+FACULTY_BY_SCHOOL.update(UTAH_FACULTY)
+FACULTY_BY_SCHOOL.update(DUKE_FACULTY)
 
 
 def search_author(name: str) -> dict | None:
