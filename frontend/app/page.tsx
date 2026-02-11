@@ -107,7 +107,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <main className="min-h-screen bg-slate-50">
       <Header currentPage="search" />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
