@@ -21,7 +21,7 @@ export function ResearchTags({ tags, maxDisplay = 5 }: ResearchTagsProps) {
         <Badge
           key={tag}
           variant="secondary"
-          className="text-xs font-normal bg-blue-50 text-blue-700 hover:bg-blue-100"
+          className="text-xs font-normal"
         >
           {tag}
         </Badge>

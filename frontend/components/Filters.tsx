@@ -25,6 +25,10 @@ const UNIVERSITIES = [
   "UCSD",
   "UCSB",
   "UCI",
+  "UC Davis",
+  "UCR",
+  "UCSC",
+  "SDSU",
   "UIUC",
   "UMich",
   "Georgia Tech",
@@ -43,6 +47,8 @@ const UNIVERSITIES = [
   "Texas A&M",
   "Boston University",
   "Virginia Tech",
+  "Rutgers",
+  "Utah",
   "Delaware",
 ];
 

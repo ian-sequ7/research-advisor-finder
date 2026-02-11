@@ -9,7 +9,7 @@ import { SearchResult, getExplanation, ExplanationBreakdown } from '@/lib/api';
 import { ResearchTags } from '@/components/ResearchTags';
 import { getMatchColor, getFacultyBadge } from '@/lib/faculty-utils';
 import { truncate } from '@/lib/utils';
-import { ExternalLink, Loader2, Sparkles, FileText, Plus, Check } from 'lucide-react';
+import { ExternalLink, Loader2, Info, FileText, Plus, Check } from 'lucide-react';
 
 interface ResultCardProps {
   result: SearchResult;
@@ -143,7 +143,7 @@ export function ResultCard({ result, rank, interests, onCompareToggle, isInCompa
         {explanation ? (
           <div className="bg-primary/5 rounded-lg p-4 space-y-3">
             <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-              <Sparkles className="h-4 w-4" /> Why this matches
+              <Info className="h-4 w-4" /> Why this matches
             </h4>
             <p className="text-sm">{explanation}</p>
 
@@ -180,7 +180,7 @@ export function ResultCard({ result, rank, interests, onCompareToggle, isInCompa
               {loadingExplanation ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
               ) : (
-                <><Sparkles className="mr-2 h-4 w-4" /> Explain Match</>
+                <><Info className="mr-2 h-4 w-4" /> Explain Match</>
               )}
             </Button>
           )}
@@ -191,7 +191,6 @@ export function ResultCard({ result, rank, interests, onCompareToggle, isInCompa
               onClick={() => onCompareToggle(result)}
               disabled={compareDisabled && !isInCompare}
               title={compareDisabled && !isInCompare ? "Maximum 3 faculty can be compared" : undefined}
-              className={isInCompare ? "bg-blue-600 hover:bg-blue-700" : ""}
             >
               {isInCompare ? (
                 <><Check className="mr-2 h-4 w-4" /> In Compare</>

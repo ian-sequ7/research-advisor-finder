@@ -4,7 +4,7 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExploreFinishResponse } from '@/lib/api';
-import { Target, User, FileText, ExternalLink, Sparkles } from 'lucide-react';
+import { Target, User, FileText, ExternalLink, Info } from 'lucide-react';
 
 interface DirectionSummaryProps {
   result: ExploreFinishResponse;
@@ -84,7 +84,7 @@ export function DirectionSummary({ result }: DirectionSummaryProps) {
 
                 <div className="bg-primary/5 rounded-lg p-3">
                   <div className="flex items-center gap-1 text-sm font-medium mb-1">
-                    <Sparkles className="h-4 w-4" />
+                    <Info className="h-4 w-4" />
                     Why this matches
                   </div>
                   <p className="text-sm text-muted-foreground">{match.explanation}</p>

@@ -93,7 +93,7 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
       <div
         className={`
           border-2 border-dashed rounded-lg p-8 text-center transition-colors
-          ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
+          ${dragActive ? 'border-primary bg-primary/5' : 'border-input hover:border-muted-foreground/40'}
           ${isLoading ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
         `}
         onDragEnter={handleDrag}
@@ -112,25 +112,25 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
 
         {selectedFile ? (
           <div className="flex items-center justify-center gap-3">
-            <FileText className="h-8 w-8 text-blue-500" />
-            <span className="text-gray-700">{selectedFile.name}</span>
+            <FileText className="h-8 w-8 text-primary" />
+            <span className="text-foreground">{selectedFile.name}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 clearFile();
               }}
-              className="p-1 hover:bg-gray-100 rounded"
+              className="p-1 hover:bg-muted rounded"
             >
-              <X className="h-4 w-4 text-gray-500" />
+              <X className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
         ) : (
           <>
-            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-            <p className="mt-2 text-sm text-gray-600">
-              <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
+            <Upload className="mx-auto h-10 w-10 text-muted-foreground/50" />
+            <p className="mt-2 text-sm text-muted-foreground">
+              <span className="font-medium text-primary">Click to upload</span> or drag and drop
             </p>
-            <p className="mt-1 text-xs text-gray-500">PDF or DOCX (max 10MB)</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">PDF or DOCX (max 10MB)</p>
           </>
         )}
       </div>
@@ -143,7 +143,7 @@ export default function CVUpload({ onUpload, isLoading, error }: CVUploadProps) 
         <button
           onClick={handleSubmit}
           disabled={isLoading}
-          className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+          className="mt-4 w-full bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <>

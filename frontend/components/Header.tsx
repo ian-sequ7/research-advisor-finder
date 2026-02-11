@@ -1,47 +1,37 @@
 import Link from 'next/link';
-import { GraduationCap, Home, Compass, BookOpen } from 'lucide-react';
 
 type HeaderProps = {
   currentPage: 'search' | 'explore' | 'resources';
 };
 
 export function Header({ currentPage }: HeaderProps) {
+  const navItems = [
+    { key: 'search', href: '/', label: 'Search' },
+    { key: 'explore', href: '/explore', label: 'Explore' },
+    { key: 'resources', href: '/resources', label: 'Resources' },
+  ] as const;
+
   return (
-    <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-      <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-semibold">Research Advisor Finder</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          {currentPage !== 'search' && (
+    <div className="border-b bg-white sticky top-0 z-10">
+      <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="text-lg font-semibold tracking-tight hover:opacity-80 transition-opacity">
+          Research Advisor Finder
+        </Link>
+        <nav className="flex items-center gap-1">
+          {navItems.map((item) => (
             <Link
-              href="/"
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
+              key={item.key}
+              href={item.href}
+              className={`text-sm px-3 py-1.5 rounded-md transition-colors ${
+                currentPage === item.key
+                  ? 'font-medium text-foreground bg-slate-100'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
-              <Home className="h-4 w-4" />
-              Search
+              {item.label}
             </Link>
-          )}
-          {currentPage !== 'explore' && (
-            <Link
-              href="/explore"
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
-            >
-              <Compass className="h-4 w-4" />
-              Explore
-            </Link>
-          )}
-          {currentPage !== 'resources' && (
-            <Link
-              href="/resources"
-              className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
-            >
-              <BookOpen className="h-4 w-4" />
-              Resources
-            </Link>
-          )}
-        </div>
+          ))}
+        </nav>
       </div>
     </div>
   );
