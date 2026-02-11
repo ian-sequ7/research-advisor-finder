@@ -42,7 +42,6 @@ const UNIVERSITIES = [
   "Rice",
   "UNC",
   "UMass",
-  "Penn State",
   "Ohio State",
   "Texas A&M",
   "Boston University",
