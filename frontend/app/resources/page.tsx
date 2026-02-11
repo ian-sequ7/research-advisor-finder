@@ -21,17 +21,16 @@ import {
 
 export default function Resources() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <main className="min-h-screen bg-slate-50">
       <Header currentPage="resources" />
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2">
-            How to Find Your Perfect Research Advisor
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-1">
+            Finding a Research Advisor
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            A comprehensive guide to cold emailing professors, conducting coffee chats,
-            and evaluating potential PhD advisors.
+          <p className="text-sm text-muted-foreground">
+            Cold emailing professors, conducting coffee chats, and evaluating potential PhD advisors.
           </p>
         </div>
 
